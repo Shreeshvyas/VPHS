@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}Class Fee Structure{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Fee Configurations</h1>
+        <p>Set up fee structures, definitions, and scholarships/discounts.</p>
+    </div>
+</div>
+
+<!-- Tabs Navigation -->
+<div style="display: flex; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+    <a href="{% url 'fee_type_list' %}" style="font-weight: 500; color: var(--text-secondary); padding-bottom: 12px;">Fee Components</a>
+    <a href="{% url 'class_fee_list' %}" style="font-weight: 700; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 12px;">Class Structures</a>
+    <a href="{% url 'student_discount_list' %}" style="font-weight: 500; color: var(--text-secondary); padding-bottom: 12px;">Scholarships & Discounts</a>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+    <!-- Class Fee structures list -->
+    <div class="glass-panel">
+        <div class="panel-header">
+            <h2>Configured Class Fee Rules</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Session</th>
+                        <th>Class Level</th>
+                        <th>Fee Component</th>
+                        <th>Amount (₹)</th>
+                        <th>Frequency</th>
+                        <th>Due Day</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for struct in structures %}
+                    <tr>
+                        <td>{{ struct.academic_session.name }}</td>
+                        <td style="font-weight: 600;">{{ struct.class_level.name }}</td>
+                        <td>{{ struct.fee_type.name }}</td>
+                        <td style="font-weight: 700;">₹{{ struct.amount|floatformat:2 }}</td>
+                        <td><span class="badge info">{{ struct.payment_frequency }}</span></td>
+                        <td>Day {{ struct.due_day_of_month }}</td>
+                        <td style="text-align: right;">
+                            <form method="POST" action="{% url 'class_fee_delete' struct.pk %}" style="display: inline;" onsubmit="return confirm('Deleting this structure will prevent future allocations. Confirm?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 20px;">No class fee structures configured yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Add Structure Form -->
+    <div>
+        <div class="glass-panel">
+            <div class="panel-header">
+                <h2>Configure Fee Rule</h2>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="{{ form.academic_session.id_for_label }}">Academic Session</label>
+                    {{ form.academic_session }}
+                    {{ form.academic_session.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.class_level.id_for_label }}">Class Level</label>
+                    {{ form.class_level }}
+                    {{ form.class_level.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.fee_type.id_for_label }}">Fee Component</label>
+                    {{ form.fee_type }}
+                    {{ form.fee_type.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.amount.id_for_label }}">Amount (₹)</label>
+                    {{ form.amount }}
+                    {{ form.amount.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.payment_frequency.id_for_label }}">Payment Frequency</label>
+                    {{ form.payment_frequency }}
+                    {{ form.payment_frequency.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.due_day_of_month.id_for_label }}">Due Day of Month</label>
+                    {{ form.due_day_of_month }}
+                    {{ form.due_day_of_month.errors }}
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    <i class="fa-solid fa-save"></i> Save Fee Rule
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

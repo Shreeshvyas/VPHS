@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Non-Fee Income registry{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Non-Fee Income registry</h1>
+        <p>Record and log commissions, uniform commissions, book distributions, events, and donation collections.</p>
+    </div>
+    <a href="{% url 'income_create' %}" class="btn btn-primary">
+        <i class="fa-solid fa-plus-circle"></i> Log Non-Fee Income
+    </a>
+</div>
+
+<div class="glass-panel">
+    <div class="panel-header">
+        <h2>Inflow Registry</h2>
+        
+        <!-- Filter Form -->
+        <form method="GET" style="display: flex; gap: 12px; align-items: center;">
+            <div class="header-search" style="width: 200px;">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" name="q" value="{{ query }}" placeholder="Search description...">
+            </div>
+            
+            <select name="source" class="form-control" style="width: 180px; padding: 8px 12px;" onchange="this.form.submit()">
+                <option value="">All Sources</option>
+                {% for code, label in sources %}
+                <option value="{{ code }}" {% if src_filter == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            
+            {% if query or src_filter %}
+            <a href="{% url 'income_list' %}" class="btn btn-outline btn-sm">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="custom-table" style="font-size: 0.9rem;">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Source</th>
+                    <th>Description</th>
+                    <th>Amount (₹)</th>
+                    <th>Recorded By</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inc in page_obj %}
+                <tr>
+                    <td>{{ inc.income_date }}</td>
+                    <td><span class="badge active">{{ inc.get_source_display }}</span></td>
+                    <td style="max-width: 300px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="{{ inc.description }}">{{ inc.description }}</td>
+                    <td style="font-weight: 700; color: var(--success);">₹{{ inc.amount|floatformat:2 }}</td>
+                    <td>{{ inc.recorded_by.username|default:"System" }}</td>
+                    <td style="text-align: right;">
+                        {% if request.user.is_school_admin or request.user.is_superuser %}
+                        <form method="POST" action="{% url 'income_delete' inc.pk %}" style="display: inline;" onsubmit="return confirm('Confirm soft-deletion of this income?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm" title="Delete record">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        </form>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 30px; font-style: italic;">
+                        No non-fee income records found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div style="display: flex; justify-content: center; gap: 8px; margin-top: 20px;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}&source={{ src_filter }}" class="btn btn-outline btn-sm">&laquo; Previous</a>
+        {% endif %}
+        <span style="align-self: center; font-size: 0.9rem; color: var(--text-secondary);">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&q={{ query }}&source={{ src_filter }}" class="btn btn-outline btn-sm">Next &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

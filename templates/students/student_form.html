@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>{{ title }}</h1>
+        <p>Record demographic information, parent relationships, and academic enrollment levels.</p>
+    </div>
+    <a href="javascript:history.back()" class="btn btn-outline">
+        <i class="fa-solid fa-arrow-left"></i> Cancel and Back
+    </a>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+        <!-- Profile info block -->
+        <div class="glass-panel">
+            <div class="panel-header">
+                <h2>1. Profile Information</h2>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="{{ student_form.admission_number.id_for_label }}">Admission Number</label>
+                    {{ student_form.admission_number }}
+                    {{ student_form.admission_number.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ student_form.admission_date.id_for_label }}">Admission Date</label>
+                    {{ student_form.admission_date }}
+                    {{ student_form.admission_date.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ student_form.status.id_for_label }}">Account Status</label>
+                    {{ student_form.status }}
+                    {{ student_form.status.errors }}
+                </div>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="{{ student_form.first_name.id_for_label }}">First Name</label>
+                    {{ student_form.first_name }}
+                    {{ student_form.first_name.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ student_form.last_name.id_for_label }}">Last Name</label>
+                    {{ student_form.last_name }}
+                    {{ student_form.last_name.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ student_form.gender.id_for_label }}">Gender</label>
+                    {{ student_form.gender }}
+                    {{ student_form.gender.errors }}
+                </div>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="{{ student_form.date_of_birth.id_for_label }}">Date of Birth</label>
+                    {{ student_form.date_of_birth }}
+                    {{ student_form.date_of_birth.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ student_form.aadhaar_number.id_for_label }}">Aadhaar Number</label>
+                    {{ student_form.aadhaar_number }}
+                    {{ student_form.aadhaar_number.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ student_form.blood_group.id_for_label }}">Blood Group</label>
+                    {{ student_form.blood_group }}
+                    {{ student_form.blood_group.errors }}
+                </div>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="{{ student_form.category.id_for_label }}">Social Category</label>
+                    {{ student_form.category }}
+                    {{ student_form.category.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ student_form.photo.id_for_label }}">Upload Photo</label>
+                    {{ student_form.photo }}
+                    {{ student_form.photo.errors }}
+                </div>
+            </div>
+            
+            <div class="panel-header" style="margin-top: 32px;">
+                <h2>2. Family & Guardian Relationship</h2>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="{{ student_form.father_name.id_for_label }}">Father's Full Name</label>
+                    {{ student_form.father_name }}
+                    {{ student_form.father_name.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ student_form.mother_name.id_for_label }}">Mother's Full Name</label>
+                    {{ student_form.mother_name }}
+                    {{ student_form.mother_name.errors }}
+                </div>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="{{ student_form.guardian_name.id_for_label }}">Guardian Name</label>
+                    {{ student_form.guardian_name }}
+                    {{ student_form.guardian_name.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ student_form.guardian_relation.id_for_label }}">Relation to Student</label>
+                    {{ student_form.guardian_relation }}
+                    {{ student_form.guardian_relation.errors }}
+                </div>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="{{ student_form.guardian_mobile.id_for_label }}">Guardian Mobile Number</label>
+                    {{ student_form.guardian_mobile }}
+                    {{ student_form.guardian_mobile.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ student_form.guardian_email.id_for_label }}">Guardian Email Address</label>
+                    {{ student_form.guardian_email }}
+                    {{ student_form.guardian_email.errors }}
+                </div>
+            </div>
+            
+            <div class="panel-header" style="margin-top: 32px;">
+                <h2>3. Address Details & Previous School</h2>
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ student_form.address.id_for_label }}">Residential Address</label>
+                {{ student_form.address }}
+                {{ student_form.address.errors }}
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="{{ student_form.city.id_for_label }}">City</label>
+                    {{ student_form.city }}
+                    {{ student_form.city.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ student_form.state.id_for_label }}">State</label>
+                    {{ student_form.state }}
+                    {{ student_form.state.errors }}
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ student_form.previous_school_details.id_for_label }}">Previous School Details</label>
+                {{ student_form.previous_school_details }}
+                {{ student_form.previous_school_details.errors }}
+            </div>
+        </div>
+        
+        <!-- Sidebar block: Enrollment fields -->
+        <div>
+            {% if enrollment_form %}
+            <div class="glass-panel">
+                <div class="panel-header">
+                    <h2>Academic Class Enrollment</h2>
+                </div>
+                <div class="form-group">
+                    <label for="{{ enrollment_form.academic_session.id_for_label }}">Academic Session</label>
+                    {{ enrollment_form.academic_session }}
+                    {{ enrollment_form.academic_session.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ enrollment_form.class_section.id_for_label }}">Class & Section Mapping</label>
+                    {{ enrollment_form.class_section }}
+                    {{ enrollment_form.class_section.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ enrollment_form.roll_number.id_for_label }}">Roll Number</label>
+                    {{ enrollment_form.roll_number }}
+                    {{ enrollment_form.roll_number.errors }}
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="glass-panel" style="text-align: center;">
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 1rem;">
+                    <i class="fa-solid fa-save"></i> Save Student File
+                </button>
+                <a href="javascript:history.back()" class="btn btn-outline" style="width: 100%; justify-content: center; margin-top: 12px;">Cancel</a>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

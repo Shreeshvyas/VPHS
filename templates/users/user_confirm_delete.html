@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Confirm Soft Delete User{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Confirm Deletion</h1>
+        <p>Removing access privileges for user {{ user_obj.username }}.</p>
+    </div>
+</div>
+
+<div class="glass-panel" style="max-width: 500px; margin: 0 auto; text-align: center;">
+    <div style="font-size: 3rem; color: var(--danger); margin-bottom: 20px;">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+    </div>
+    
+    <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Are you sure?</h2>
+    <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6;">
+        You are about to soft-delete the user account <strong>{{ user_obj.username }}</strong>. 
+        The user will no longer be able to log in, but historical audit trails and records of their activities will be preserved.
+    </p>
+    
+    <form method="POST">
+        {% csrf_token %}
+        <div style="display: flex; gap: 12px; justify-content: center;">
+            <a href="{% url 'user_list' %}" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-danger">
+                <i class="fa-solid fa-trash"></i> Confirm Soft-Delete
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

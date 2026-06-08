@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Fee Configurations{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Fee Configurations</h1>
+        <p>Set up fee structures, definitions, and scholarships/discounts.</p>
+    </div>
+</div>
+
+<!-- Tabs Navigation -->
+<div style="display: flex; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+    <a href="{% url 'fee_type_list' %}" style="font-weight: 700; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 12px;">Fee Components</a>
+    <a href="{% url 'class_fee_list' %}" style="font-weight: 500; color: var(--text-secondary); padding-bottom: 12px;">Class Structures</a>
+    <a href="{% url 'student_discount_list' %}" style="font-weight: 500; color: var(--text-secondary); padding-bottom: 12px;">Scholarships & Discounts</a>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+    <!-- Fee Types List -->
+    <div class="glass-panel">
+        <div class="panel-header">
+            <h2>Fee Components Definitions</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Fee Type Name</th>
+                        <th>Description</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ft in fee_types %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ ft.name }}</td>
+                        <td>{{ ft.description|default:"-" }}</td>
+                        <td style="text-align: right;">
+                            <form method="POST" action="{% url 'fee_type_delete' ft.pk %}" style="display: inline;" onsubmit="return confirm('Deleting a fee component will hide it from future configurations. Proceed?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 20px;">No fee components configured yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Add Fee Type Form -->
+    <div>
+        <div class="glass-panel">
+            <div class="panel-header">
+                <h2>Create Fee Component</h2>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.name.id_for_label }}">Component Name</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <div style="color: var(--danger); font-size: 0.85rem; margin-top: 4px;">{{ form.name.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">Description</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <div style="color: var(--danger); font-size: 0.85rem; margin-top: 4px;">{{ form.description.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    <i class="fa-solid fa-plus"></i> Add Component
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Expenses registry{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Expenses registry</h1>
+        <p>Log, approve, and track school administrative and operations outlays.</p>
+    </div>
+    <a href="{% url 'expense_create' %}" class="btn btn-primary">
+        <i class="fa-solid fa-plus-circle"></i> Record New Expense
+    </a>
+</div>
+
+<div class="glass-panel">
+    <div class="panel-header">
+        <h2>Operations outlays</h2>
+        
+        <!-- Filter Form -->
+        <form method="GET" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <div class="header-search" style="width: 200px;">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" name="q" value="{{ query }}" placeholder="Search description...">
+            </div>
+            
+            <select name="category" class="form-control" style="width: 160px; padding: 8px 12px;" onchange="this.form.submit()">
+                <option value="">All Categories</option>
+                {% for code, label in categories %}
+                <option value="{{ code }}" {% if cat_filter == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            
+            <select name="status" class="form-control" style="width: 160px; padding: 8px 12px;" onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                {% for code, label in statuses %}
+                <option value="{{ code }}" {% if status_filter == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            
+            {% if query or cat_filter or status_filter %}
+            <a href="{% url 'expense_list' %}" class="btn btn-outline btn-sm">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="custom-table" style="font-size: 0.9rem;">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Amount (₹)</th>
+                    <th>Recorded By</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exp in page_obj %}
+                <tr>
+                    <td>{{ exp.expense_date }}</td>
+                    <td><span class="badge info">{{ exp.get_category_display }}</span></td>
+                    <td style="max-width: 250px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="{{ exp.description }}">{{ exp.description }}</td>
+                    <td style="font-weight: 700; color: var(--danger);">₹{{ exp.amount|floatformat:2 }}</td>
+                    <td>{{ exp.recorded_by.username|default:"System" }}</td>
+                    <td>
+                        <span class="badge {% if exp.status == 'APPROVED' %}active{% elif exp.status == 'REJECTED' %}inactive{% else %}pending{% endif %}">
+                            {{ exp.get_status_display }}
+                        </span>
+                    </td>
+                    <td style="text-align: right; display: flex; gap: 8px; justify-content: flex-end;">
+                        {% if exp.status == 'PENDING' %}
+                            {% if request.user.is_school_admin or request.user.is_superuser %}
+                            <a href="{% url 'expense_approve' exp.pk %}" class="btn btn-primary btn-sm">
+                                <i class="fa-solid fa-stamp"></i> Review
+                            </a>
+                            {% endif %}
+                        {% endif %}
+                        
+                        {% if request.user.is_school_admin or request.user.is_superuser %}
+                        <form method="POST" action="{% url 'expense_delete' exp.pk %}" style="display: inline;" onsubmit="return confirm('Confirm soft-deletion of this expense?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm" title="Delete record">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 30px; font-style: italic;">
+                        No operations outlays found matching the filters.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div style="display: flex; justify-content: center; gap: 8px; margin-top: 20px;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}&category={{ cat_filter }}&status={{ status_filter }}" class="btn btn-outline btn-sm">&laquo; Previous</a>
+        {% endif %}
+        <span style="align-self: center; font-size: 0.9rem; color: var(--text-secondary);">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&q={{ query }}&category={{ cat_filter }}&status={{ status_filter }}" class="btn btn-outline btn-sm">Next &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

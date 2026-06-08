@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Student Directory{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Student Directory</h1>
+        <p>Manage student files, admissions, profiles, and printable ID cards.</p>
+    </div>
+    <a href="{% url 'student_create' %}" class="btn btn-primary">
+        <i class="fa-solid fa-user-plus"></i> New Student Admission
+    </a>
+</div>
+
+<div class="glass-panel">
+    <div class="panel-header">
+        <h2>Active Students</h2>
+        
+        <!-- Search and Filter Form -->
+        <form method="GET" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <div class="header-search" style="width: 200px;">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" name="q" value="{{ query }}" placeholder="Search name/roll/adm...">
+            </div>
+            
+            <select name="class_section" class="form-control" style="width: 180px; padding: 8px 12px;" onchange="this.form.submit()">
+                <option value="">All Classes</option>
+                {% for cs in class_sections %}
+                <option value="{{ cs.id }}" {% if class_section_id == cs.id %}selected{% endif %}>{{ cs }}</option>
+                {% endfor %}
+            </select>
+            
+            <select name="status" class="form-control" style="width: 140px; padding: 8px 12px;" onchange="this.form.submit()">
+                {% for code, label in statuses %}
+                <option value="{{ code }}" {% if status_filter == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            
+            {% if query or class_section_id or status_filter != 'ACTIVE' %}
+            <a href="{% url 'student_list' %}" class="btn btn-outline btn-sm">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Admission No</th>
+                    <th>Roll No</th>
+                    <th>Full Name</th>
+                    <th>Class Section</th>
+                    <th>Father's Name</th>
+                    <th>Mobile Number</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for en in page_obj %}
+                <tr>
+                    <td>{{ en.student.admission_number }}</td>
+                    <td>{{ en.roll_number|default:"-" }}</td>
+                    <td style="font-weight: 600;">{{ en.student.full_name }}</td>
+                    <td><span class="badge info">{{ en.class_section }}</span></td>
+                    <td>{{ en.student.father_name }}</td>
+                    <td>{{ en.student.guardian_mobile }}</td>
+                    <td>
+                        <span class="badge {% if en.student.status == 'ACTIVE' %}active{% elif en.student.status == 'INACTIVE' %}inactive{% elif en.student.status == 'TRANSFERRED' %}transferred{% else %}pending{% endif %}">
+                            {{ en.student.get_status_display }}
+                        </span>
+                    </td>
+                    <td style="text-align: right; display: flex; gap: 8px; justify-content: flex-end;">
+                        <a href="{% url 'student_profile' en.student.pk %}" class="btn btn-outline btn-sm">
+                            <i class="fa-solid fa-eye"></i> View Profile
+                        </a>
+                        <a href="{% url 'student_id_card' en.student.pk %}" target="_blank" class="btn btn-secondary btn-sm" title="Print Student ID Card">
+                            <i class="fa-solid fa-id-card"></i> ID Card
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align: center; color: var(--text-secondary); font-style: italic; padding: 30px;">
+                        No student records match the search filters.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div style="display: flex; justify-content: center; gap: 8px; margin-top: 20px;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}&class_section={{ class_section_id }}&status={{ status_filter }}" class="btn btn-outline btn-sm">&laquo; Previous</a>
+        {% endif %}
+        <span style="align-self: center; font-size: 0.9rem; color: var(--text-secondary);">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&q={{ query }}&class_section={{ class_section_id }}&status={{ status_filter }}" class="btn btn-outline btn-sm">Next &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

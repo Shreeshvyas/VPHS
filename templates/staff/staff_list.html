@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Staff Directory{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Staff & Payroll Management</h1>
+        <p>Manage employee records, salary structures, payslips, and payroll logs.</p>
+    </div>
+    {% if request.user.role == 'SUPER_ADMIN' or request.user.role == 'SCHOOL_ADMIN' %}
+    <a href="{% url 'staff_create' %}" class="btn btn-primary">
+        <i class="fa-solid fa-user-plus"></i> Register New Employee
+    </a>
+    {% endif %}
+</div>
+
+<!-- Tabs Navigation -->
+<div style="display: flex; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+    <a href="{% url 'staff_list' %}" style="font-weight: 700; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 12px;">Employee Directory</a>
+    <a href="{% url 'salary_dashboard' %}" style="font-weight: 500; color: var(--text-secondary); padding-bottom: 12px;">Payroll Management</a>
+</div>
+
+<div class="glass-panel">
+    <div class="panel-header">
+        <h2>Employee Directory</h2>
+        
+        <!-- Search and Filter Form -->
+        <form method="GET" style="display: flex; gap: 12px; align-items: center;">
+            <div class="header-search" style="width: 220px;">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" name="q" value="{{ query }}" placeholder="Search name/Emp ID...">
+            </div>
+            
+            <select name="dept" class="form-control" style="width: 180px; padding: 8px 12px;" onchange="this.form.submit()">
+                <option value="">All Departments</option>
+                {% for code, label in departments %}
+                <option value="{{ code }}" {% if dept_filter == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            
+            {% if query or dept_filter %}
+            <a href="{% url 'staff_list' %}" class="btn btn-outline btn-sm">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Full Name</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+                    <th>Mobile</th>
+                    <th>Base Salary</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in page_obj %}
+                <tr>
+                    <td style="font-family: monospace; font-weight: 700; color: var(--primary);">{{ member.employee_id }}</td>
+                    <td style="font-weight: 600;">{{ member.full_name }}</td>
+                    <td>{{ member.get_department_display }}</td>
+                    <td><span class="badge info">{{ member.get_designation_display }}</span></td>
+                    <td>{{ member.mobile }}</td>
+                    <td style="font-weight: 700;">₹{{ member.base_salary|floatformat:2 }}</td>
+                    <td>
+                        <span class="badge {% if member.status == 'ACTIVE' %}active{% elif member.status == 'RESIGNED' %}pending{% else %}inactive{% endif %}">
+                            {{ member.get_status_display }}
+                        </span>
+                    </td>
+                    <td style="text-align: right; display: flex; gap: 8px; justify-content: flex-end;">
+                        <a href="{% url 'staff_profile' member.pk %}" class="btn btn-outline btn-sm">
+                            <i class="fa-solid fa-eye"></i> View Profile
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align: center; color: var(--text-secondary); padding: 30px; font-style: italic;">
+                        No employee records found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div style="display: flex; justify-content: center; gap: 8px; margin-top: 20px;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}&dept={{ dept_filter }}" class="btn btn-outline btn-sm">&laquo; Previous</a>
+        {% endif %}
+        <span style="align-self: center; font-size: 0.9rem; color: var(--text-secondary);">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&q={{ query }}&dept={{ dept_filter }}" class="btn btn-outline btn-sm">Next &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

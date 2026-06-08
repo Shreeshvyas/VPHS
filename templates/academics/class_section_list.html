@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Class-Section Mappings{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Academic Setup</h1>
+        <p>Define class structures, sections, and subjects.</p>
+    </div>
+</div>
+
+<!-- Tabs Navigation -->
+<div style="display: flex; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+    <a href="{% url 'class_list' %}" style="font-weight: 500; color: var(--text-secondary); padding-bottom: 12px;">Class Levels</a>
+    <a href="{% url 'section_list' %}" style="font-weight: 500; color: var(--text-secondary); padding-bottom: 12px;">Sections</a>
+    <a href="{% url 'class_section_list' %}" style="font-weight: 700; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 12px;">Class-Section Mapping</a>
+    <a href="{% url 'subject_list' %}" style="font-weight: 500; color: var(--text-secondary); padding-bottom: 12px;">Subjects Directory</a>
+    <a href="{% url 'session_list' %}" style="font-weight: 500; color: var(--text-secondary); padding-bottom: 12px;">Academic Sessions</a>
+    <a href="{% url 'promotion_wizard' %}" style="font-weight: 500; color: var(--text-secondary); padding-bottom: 12px; margin-left: auto; color: var(--accent);"><i class="fa-solid fa-graduation-cap"></i> Promotion Wizard</a>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+    <!-- Mapping List -->
+    <div class="glass-panel">
+        <div class="panel-header">
+            <h2>Active Class-Section Combinations</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Class Section Name</th>
+                        <th>Room Number</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cs in class_sections %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ cs.class_level.name }} - {{ cs.section.name }}</td>
+                        <td>{{ cs.room_number|default:"-" }}</td>
+                        <td style="text-align: right;">
+                            <form method="POST" action="{% url 'class_section_delete' cs.pk %}" style="display: inline;" onsubmit="return confirm('Soft-deleting this mapping removes it from selection but keeps existing enrollments. Confirm?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 20px;">No class-section mappings configured yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Add Mapping Form -->
+    <div>
+        <div class="glass-panel">
+            <div class="panel-header">
+                <h2>Map Class & Section</h2>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.class_level.id_for_label }}">Class Level</label>
+                    {{ form.class_level }}
+                    {% if form.class_level.errors %}
+                    <div style="color: var(--danger); font-size: 0.85rem; margin-top: 4px;">{{ form.class_level.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.section.id_for_label }}">Section</label>
+                    {{ form.section }}
+                    {% if form.section.errors %}
+                    <div style="color: var(--danger); font-size: 0.85rem; margin-top: 4px;">{{ form.section.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.room_number.id_for_label }}">Room Number</label>
+                    {{ form.room_number }}
+                    {% if form.room_number.errors %}
+                    <div style="color: var(--danger); font-size: 0.85rem; margin-top: 4px;">{{ form.room_number.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    <i class="fa-solid fa-link"></i> Link Class & Section
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

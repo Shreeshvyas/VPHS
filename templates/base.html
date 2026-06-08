@@ -1,0 +1,205 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}School ERP Dashboard{% endblock %} | Vyas public school</title>
+    <!-- Fonts and Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-avatar" style="background-color: var(--sidebar-active); color: var(--sidebar-bg);">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div class="sidebar-logo">VYAS PUBLIC SCHOOL</div>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="menu-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <a href="{% url 'dashboard' %}">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                
+                {% if request.user.is_school_admin %}
+                <li class="menu-item {% if 'user' in request.path %}active{% endif %}">
+                    <a href="{% url 'user_list' %}">
+                        <i class="fa-solid fa-users-gear"></i>
+                        <span>User Management</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% if request.user.role == 'SUPER_ADMIN' or request.user.role == 'SCHOOL_ADMIN' or request.user.role == 'PRINCIPAL' or request.user.role == 'TEACHER' %}
+                <li class="menu-item {% if 'academics' in request.path %}active{% endif %}">
+                    <a href="{% url 'class_list' %}">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>Academics</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                <li class="menu-item {% if 'students' in request.path %}active{% endif %}">
+                    <a href="{% url 'student_list' %}">
+                        <i class="fa-solid fa-user-graduate"></i>
+                        <span>Student Directory</span>
+                    </a>
+                </li>
+                
+                {% if request.user.is_accountant or request.user.is_school_admin %}
+                <li class="menu-item {% if 'fees' in request.path and 'collect' not in request.path and 'receipts' not in request.path and 'dues' not in request.path %}active{% endif %}">
+                    <a href="{% url 'fee_type_list' %}">
+                        <i class="fa-solid fa-gears"></i>
+                        <span>Fee Configurations</span>
+                    </a>
+                </li>
+                <li class="menu-item {% if 'fees/collect' in request.path %}active{% endif %}">
+                    <a href="{% url 'fee_collection_dashboard' %}">
+                        <i class="fa-solid fa-cash-register"></i>
+                        <span>Fee Collection</span>
+                    </a>
+                </li>
+                <li class="menu-item {% if 'fees/receipts' in request.path %}active{% endif %}">
+                    <a href="{% url 'receipt_history' %}">
+                        <i class="fa-solid fa-receipt"></i>
+                        <span>Receipt History</span>
+                    </a>
+                </li>
+                <li class="menu-item {% if 'fees/dues' in request.path %}active{% endif %}">
+                    <a href="{% url 'due_report' %}">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <span>Due Management</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% if request.user.role == 'SUPER_ADMIN' or request.user.role == 'SCHOOL_ADMIN' or request.user.role == 'PRINCIPAL' or request.user.is_accountant %}
+                <li class="menu-item {% if 'staff' in request.path or 'salar' in request.path %}active{% endif %}">
+                    <a href="{% url 'staff_list' %}">
+                        <i class="fa-solid fa-clipboard-user"></i>
+                        <span>Staff & Payroll</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% if request.user.is_accountant or request.user.is_school_admin %}
+                <li class="menu-item {% if 'finance/expense' in request.path %}active{% endif %}">
+                    <a href="{% url 'expense_list' %}">
+                        <i class="fa-solid fa-money-bill-transfer"></i>
+                        <span>Expenses</span>
+                    </a>
+                </li>
+                <li class="menu-item {% if 'finance/income' in request.path %}active{% endif %}">
+                    <a href="{% url 'income_list' %}">
+                        <i class="fa-solid fa-hand-holding-dollar"></i>
+                        <span>Non-Fee Income</span>
+                    </a>
+                </li>
+                <li class="menu-item {% if 'daybook' in request.path or 'cashbook' in request.path %}active{% endif %}">
+                    <a href="{% url 'daybook' %}">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span>Cashbook & Daybook</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                <li class="menu-item {% if 'reports' in request.path %}active{% endif %}">
+                    <a href="{% url 'reports_dashboard' %}">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                
+                {% if request.user.role == 'SUPER_ADMIN' %}
+                <li class="menu-item {% if 'backup' in request.path %}active{% endif %}">
+                    <a href="{% url 'backup_restore' %}">
+                        <i class="fa-solid fa-database"></i>
+                        <span>Backup & Restore</span>
+                    </a>
+                </li>
+                <li class="menu-item {% if 'activity-logs' in request.path %}active{% endif %}">
+                    <a href="{% url 'activity_logs' %}">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>System Activity Logs</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+            
+            <div class="sidebar-footer">
+                Logged in as: <strong>{{ request.user.username }}</strong>
+            </div>
+        </aside>
+        
+        <!-- Main Wrapper -->
+        <main class="main-wrapper">
+            <!-- Header bar -->
+            <header class="main-header">
+                <div class="header-left">
+                    <div class="session-indicator">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        Session: {{ ACTIVE_SESSION.name|default:"None Configured" }}
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <div class="notification-bell">
+                        <i class="fa-regular fa-bell" style="font-size: 1.2rem; cursor: pointer; color: var(--text-secondary);"></i>
+                    </div>
+                    
+                    <div class="user-profile" onclick="location.href='{% url 'logout' %}'" title="Click to Logout">
+                        <div class="user-avatar">
+                            {{ request.user.username|slice:":1"|upper }}
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">{{ request.user.first_name|default:request.user.username }}</div>
+                            <div class="user-role">{{ request.user.get_role_display }}</div>
+                        </div>
+                        <i class="fa-solid fa-right-from-bracket" style="color: var(--danger); margin-left: 8px;"></i>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Page Content Body -->
+            <div class="content-body">
+                <!-- Message notifications -->
+                {% if messages %}
+                <div class="alert-container">
+                    {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% else %}info{% endif %}">
+                        <span><i class="fa-solid {% if message.tags == 'error' %}fa-circle-exclamation{% elif message.tags == 'success' %}fa-circle-check{% else %}fa-circle-info{% endif %}"></i> {{ message }}</span>
+                        <span class="alert-close" onclick="this.parentElement.style.display='none'">&times;</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // Auto dismiss alerts after 5 seconds
+        setTimeout(function() {
+            let alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.remove();
+                }, 500);
+            });
+        }, 5000);
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

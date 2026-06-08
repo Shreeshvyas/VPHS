@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% block title %}Collect Payment: {{ student.full_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Collect Fee Payment</h1>
+        <p>Record transactions, adjust fines/concessions, and allocate collections.</p>
+    </div>
+    <a href="{% url 'fee_collection_dashboard' %}" class="btn btn-outline">
+        <i class="fa-solid fa-arrow-left"></i> Change Student
+    </a>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px;">
+    <!-- Dues & Particulars Block -->
+    <div>
+        <!-- Student Info card -->
+        <div class="glass-panel" style="margin-bottom: 24px; padding: 20px;">
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                    <i class="fa-solid fa-user-graduate"></i>
+                </div>
+                <div>
+                    <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary);">{{ student.full_name }}</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px;">
+                        Adm No: <strong>{{ student.admission_number }}</strong> &bull; 
+                        Class: <strong>{{ enrollment.class_section }}</strong> &bull; 
+                        Roll No: <strong>{{ enrollment.roll_number|default:"-" }}</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel">
+            <div class="panel-header">
+                <h2>Outstanding Dues Particulars</h2>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="custom-table" style="font-size: 0.9rem;">
+                    <thead>
+                        <tr>
+                            <th>Fee Component</th>
+                            <th>Due Date</th>
+                            <th>Original (₹)</th>
+                            <th>Discount (₹)</th>
+                            <th>Net Due (₹)</th>
+                            <th>Paid (₹)</th>
+                            <th style="text-align: right;">Balance (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for due in dues %}
+                        <tr>
+                            <td style="font-weight: 600;">{{ due.fee_type.name }}</td>
+                            <td>{{ due.due_date }}</td>
+                            <td>{{ due.original_amount|floatformat:2 }}</td>
+                            <td>{{ due.discount_amount|floatformat:2 }}</td>
+                            <td>{{ due.net_amount|floatformat:2 }}</td>
+                            <td>{{ due.paid_amount|floatformat:2 }}</td>
+                            <td style="text-align: right; font-weight: 700; color: var(--danger);">
+                                ₹{{ due.balance_amount|floatformat:2 }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--success); font-style: italic; padding: 20px;">
+                                No outstanding dues to collect. Account is fully clear!
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Collection inputs Block -->
+    <div>
+        <div class="glass-panel">
+            <div class="panel-header">
+                <h2>Collection Registry Form</h2>
+            </div>
+            
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div style="padding: 16px; background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Total Outstanding:</span>
+                        <span style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary);" id="totalOutstandingDisplay">₹{{ total_outstanding|floatformat:2 }}</span>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 8px; margin-top: 8px;">
+                        <span style="font-size: 0.9rem; font-weight: 700; color: var(--primary);">Net Payable:</span>
+                        <span style="font-size: 1.25rem; font-weight: 800; color: var(--success);" id="netPayableDisplay">₹{{ total_outstanding|floatformat:2 }}</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Amount Collected (₹)</label>
+                    <input type="number" name="amount_paid" id="amountPaidInput" class="form-control" style="font-size: 1.1rem; font-weight: 700;" step="0.01" max="{{ total_outstanding }}" value="{{ total_outstanding }}" required>
+                </div>
+                
+                <div class="form-grid" style="margin-bottom: 20px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Fine Applied (₹)</label>
+                        <input type="number" name="fine_applied" id="fineAppliedInput" class="form-control" step="0.01" value="0.00" oninput="calculateNetPayable()">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Discount Concession (₹)</label>
+                        <input type="number" name="discount_applied" id="discountAppliedInput" class="form-control" step="0.01" value="0.00" oninput="calculateNetPayable()">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.payment_mode.id_for_label }}">Payment Mode</label>
+                    {{ form.payment_mode }}
+                </div>
+                
+                <div class="form-group" id="txnGroup" style="display: none;">
+                    <label for="{{ form.transaction_id.id_for_label }}">Transaction Reference / Cheque ID</label>
+                    {{ form.transaction_id }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.remarks.id_for_label }}">Remarks / Collection Notes</label>
+                    {{ form.remarks }}
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 1rem;" {% if not dues %}disabled{% endif %}>
+                    <i class="fa-solid fa-file-invoice"></i> Save Collection & Generate Receipt
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const outstanding = {{ total_outstanding|default:0 }};
+    
+    function calculateNetPayable() {
+        const fine = parseFloat(document.getElementById("fineAppliedInput").value) || 0;
+        const discount = parseFloat(document.getElementById("discountAppliedInput").value) || 0;
+        const netPayable = outstanding + fine - discount;
+        
+        document.getElementById("netPayableDisplay").textContent = "₹" + netPayable.toFixed(2);
+        
+        // Auto-update amount collected to match net payable if user has not custom edited it
+        const amtInput = document.getElementById("amountPaidInput");
+        amtInput.max = netPayable;
+        amtInput.value = netPayable.toFixed(2);
+    }
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        const pModeSelect = document.getElementById("id_payment_mode");
+        const txnGroup = document.getElementById("txnGroup");
+        const txnInput = document.getElementById("id_transaction_id");
+        
+        pModeSelect.addEventListener("change", function() {
+            if (this.value !== "CASH") {
+                txnGroup.style.display = "block";
+                txnInput.required = true;
+            } else {
+                txnGroup.style.display = "none";
+                txnInput.required = false;
+                txnInput.value = "";
+            }
+        });
+    });
+</script>
+{% endblock %}

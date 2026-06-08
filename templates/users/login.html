@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Vyas public school School ERP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="fa-solid fa-graduation-cap" style="color: var(--sidebar-active); font-size: 2.5rem; margin-bottom: 12px;"></i>
+                <div>VYAS PUBLIC SCHOOL</div>
+            </div>
+            <p class="auth-desc">School Management ERP Portal</p>
+        </div>
+
+        {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+            <div class="alert alert-error" style="font-size: 0.85rem; padding: 10px 15px;">
+                <span><i class="fa-solid fa-circle-exclamation"></i> {{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_username">Username</label>
+                <div style="position: relative;">
+                    <i class="fa-solid fa-user" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                    <input type="text" name="username" id="id_username" class="form-control" style="padding-left: 40px;" placeholder="Enter Username" required>
+                </div>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label for="id_password">Password</label>
+                <div style="position: relative;">
+                    <i class="fa-solid fa-lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                    <input type="password" name="password" id="id_password" class="form-control" style="padding-left: 40px;" placeholder="Enter Password" required>
+                </div>
+            </div>
+            
+            <div style="text-align: right; margin-bottom: 24px;">
+                <a href="{% url 'forgot_password' %}" style="font-size: 0.85rem; color: var(--sidebar-active); transition: var(--transition);">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; background-color: var(--sidebar-active); color: var(--sidebar-bg); padding: 12px; font-weight: 700; border-radius: var(--radius-sm);">
+                SIGN IN <i class="fa-solid fa-right-to-bracket"></i>
+            </button>
+        </form>
+    </div>
+</body>
+</html>

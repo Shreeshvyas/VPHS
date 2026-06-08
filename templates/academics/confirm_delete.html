@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>{{ title }}</h1>
+        <p>Removing academic configuration record.</p>
+    </div>
+</div>
+
+<div class="glass-panel" style="max-width: 500px; margin: 0 auto; text-align: center;">
+    <div style="font-size: 3rem; color: var(--danger); margin-bottom: 20px;">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+    </div>
+    
+    <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Are you sure?</h2>
+    <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6;">
+        You are about to soft-delete <strong>{{ obj }}</strong>. 
+        This will remove the option from selections but will preserve existing data references for historical logging.
+    </p>
+    
+    <form method="POST">
+        {% csrf_token %}
+        <div style="display: flex; gap: 12px; justify-content: center;">
+            <a href="javascript:history.back()" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-danger">
+                <i class="fa-solid fa-trash"></i> Confirm Soft-Delete
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

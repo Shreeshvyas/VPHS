@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}User Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>User Management</h1>
+        <p>Configure administrative system logins, roles, and status levels.</p>
+    </div>
+    <a href="{% url 'user_create' %}" class="btn btn-primary">
+        <i class="fa-solid fa-user-plus"></i> Create New User
+    </a>
+</div>
+
+<div class="glass-panel">
+    <div class="panel-header">
+        <h2>System Accounts</h2>
+        <!-- Search and Filter Form -->
+        <form method="GET" style="display: flex; gap: 12px; align-items: center;">
+            <div class="header-search" style="width: 220px;">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" name="q" value="{{ query }}" placeholder="Search users...">
+            </div>
+            <select name="role" class="form-control" style="width: 160px; padding: 8px 12px;" onchange="this.form.submit()">
+                <option value="">All Roles</option>
+                {% for code, label in roles %}
+                <option value="{{ code }}" {% if role_filter == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            {% if query or role_filter %}
+            <a href="{% url 'user_list' %}" class="btn btn-outline btn-sm">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email Address</th>
+                    <th>Full Name</th>
+                    <th>Mobile</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in page_obj %}
+                <tr>
+                    <td style="font-weight: 600;">{{ u.username }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.first_name }} {{ u.last_name }}</td>
+                    <td>{{ u.mobile|default:"-" }}</td>
+                    <td><span class="badge info">{{ u.get_role_display }}</span></td>
+                    <td>
+                        {% if u.is_active %}
+                        <span class="badge active">Active</span>
+                        {% else %}
+                        <span class="badge inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: right; display: flex; gap: 8px; justify-content: flex-end;">
+                        <a href="{% url 'user_update' u.pk %}" class="btn btn-outline btn-sm">
+                            <i class="fa-solid fa-pen"></i> Edit
+                        </a>
+                        <a href="{% url 'user_delete' u.pk %}" class="btn btn-danger btn-sm">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-secondary); font-style: italic; padding: 30px;">
+                        No user accounts match your search filters.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div style="display: flex; justify-content: center; gap: 8px; margin-top: 20px;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}&role={{ role_filter }}" class="btn btn-outline btn-sm">&laquo; Previous</a>
+        {% endif %}
+        <span style="align-self: center; font-size: 0.9rem; color: var(--text-secondary);">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&q={{ query }}&role={{ role_filter }}" class="btn btn-outline btn-sm">Next &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

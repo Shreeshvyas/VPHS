@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Reporting Center{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Reporting Center</h1>
+        <p>Compile lists, financial balance sheets, and export directories to spreadsheets.</p>
+    </div>
+</div>
+
+<div class="glass-panel">
+    <div class="panel-header">
+        <h2>Spreadsheet Reports (Excel)</h2>
+        <i class="fa-solid fa-file-excel" style="color: #16a34a; font-size: 1.25rem;"></i>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+        <div class="card" style="padding: 20px;">
+            <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">Student Directory Export</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 16px;">
+                Generates a complete list of all currently enrolled students, including admission number, roll number, parental info, contact numbers, and status.
+            </p>
+            <a href="{% url 'export_students_excel' %}" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">
+                <i class="fa-solid fa-download"></i> Export Directory
+            </a>
+        </div>
+        
+        <div class="card" style="padding: 20px;">
+            <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">Fee Collections Ledger</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 16px;">
+                Generates a chronological log of all collected payments, showing transaction reference numbers, amounts paid, payment modes, and names of payees.
+            </p>
+            <a href="{% url 'export_collections_excel' %}" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">
+                <i class="fa-solid fa-download"></i> Export Collections
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="glass-panel">
+    <div class="panel-header">
+        <h2>System Quick Links</h2>
+        <i class="fa-solid fa-link" style="color: var(--text-secondary);"></i>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+        <a href="{% url 'due_report' %}" class="btn btn-outline" style="justify-content: flex-start;">
+            <i class="fa-solid fa-file-invoice-dollar" style="color: var(--danger);"></i>
+            <span>Dues and Pending Outstanding List</span>
+        </a>
+        <a href="{% url 'receipt_history' %}" class="btn btn-outline" style="justify-content: flex-start;">
+            <i class="fa-solid fa-receipt" style="color: var(--success);"></i>
+            <span>Sequential Receipts List</span>
+        </a>
+        <a href="{% url 'daybook' %}" class="btn btn-outline" style="justify-content: flex-start;">
+            <i class="fa-solid fa-wallet" style="color: var(--accent);"></i>
+            <span>Daily Accounting Daybook</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

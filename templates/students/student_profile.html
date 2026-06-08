@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% block title %}{{ student.full_name }} Profile{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Student File Profile</h1>
+        <p>Manage admission details, fee histories, and ID prints.</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        <a href="{% url 'student_update' student.pk %}" class="btn btn-outline">
+            <i class="fa-solid fa-pen"></i> Edit Profile
+        </a>
+        {% if request.user.is_school_admin %}
+        <a href="{% url 'student_delete' student.pk %}" class="btn btn-danger">
+            <i class="fa-solid fa-trash"></i> Delete Student
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 2.5fr; gap: 24px;">
+    <!-- Profile Card (Left Pane) -->
+    <div>
+        <div class="glass-panel" style="text-align: center; padding: 30px 20px;">
+            <!-- Profile Photo -->
+            <div style="width: 120px; height: 130px; border-radius: var(--radius-md); margin: 0 auto 16px; overflow: hidden; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);">
+                {% if student.photo %}
+                <img src="{{ student.photo.url }}" alt="Photo" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                <i class="fa-regular fa-user" style="font-size: 3rem; color: var(--text-secondary);"></i>
+                {% endif %}
+            </div>
+            
+            <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--text-primary);">{{ student.full_name }}</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">Adm No: <strong>{{ student.admission_number }}</strong></p>
+            
+            <div style="margin-top: 20px; padding: 12px; background-color: var(--primary-light); border-radius: var(--radius-sm); border: 1px solid rgba(30, 58, 138, 0.1);">
+                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Outstanding Fee Dues</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--danger); margin-top: 4px;">₹{{ total_due|floatformat:2 }}</div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 24px;">
+                <a href="{% url 'student_id_card' student.pk %}" target="_blank" class="btn btn-primary" style="justify-content: center; width: 100%;">
+                    <i class="fa-solid fa-id-card"></i> Print Student ID Card
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Details Tabs (Right Pane) -->
+    <div>
+        <!-- Tabs Navigation -->
+        <div style="display: flex; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+            <button onclick="switchTab('details-tab')" id="btn-details" style="background: none; border: none; font-size: 1rem; font-weight: 700; color: var(--primary); cursor: pointer; border-bottom: 2px solid var(--primary); padding-bottom: 12px;">Profile Info</button>
+            <button onclick="switchTab('fees-tab')" id="btn-fees" style="background: none; border: none; font-size: 1rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; padding-bottom: 12px;">Outstanding Dues</button>
+            <button onclick="switchTab('timeline-tab')" id="btn-timeline" style="background: none; border: none; font-size: 1rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; padding-bottom: 12px;">Academic History</button>
+        </div>
+        
+        <!-- Tab 1: Profile Info -->
+        <div id="details-tab" class="glass-panel tab-content">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; color: var(--text-primary);">Detailed Student Information</h3>
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <tbody>
+                        <tr>
+                            <td width="150" style="font-weight: 600; color: var(--text-secondary);">Date of Birth:</td>
+                            <td>{{ student.date_of_birth }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Gender:</td>
+                            <td>{{ student.get_gender_display }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Aadhaar Card No:</td>
+                            <td style="font-family: monospace;">{{ student.aadhaar_number|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Admission Date:</td>
+                            <td>{{ student.admission_date }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Blood Group:</td>
+                            <td>{{ student.get_blood_group_display|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Category:</td>
+                            <td>{{ student.get_category_display }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Father's Name:</td>
+                            <td>{{ student.father_name }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Mother's Name:</td>
+                            <td>{{ student.mother_name }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Guardian:</td>
+                            <td>{{ student.guardian_name }} ({{ student.guardian_relation }})</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Guardian Contact:</td>
+                            <td>{{ student.guardian_mobile }} &bull; {{ student.guardian_email|default:"No email recorded" }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Residential Address:</td>
+                            <td>{{ student.address }}, {{ student.city }}, {{ student.state }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Previous School:</td>
+                            <td>{{ student.previous_school_details|default:"None" }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Tab 2: Fees -->
+        <div id="fees-tab" class="glass-panel tab-content" style="display: none;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; color: var(--text-primary);">Outstanding Payments</h3>
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Fee Component</th>
+                            <th>Original Amount</th>
+                            <th>Discount</th>
+                            <th>Net Amount</th>
+                            <th>Paid Amount</th>
+                            <th>Balance Due</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for due in fees_due %}
+                        <tr>
+                            <td style="font-weight: 600;">{{ due.fee_type.name }}</td>
+                            <td>₹{{ due.original_amount|floatformat:2 }}</td>
+                            <td>₹{{ due.discount_amount|floatformat:2 }}</td>
+                            <td>₹{{ due.net_amount|floatformat:2 }}</td>
+                            <td>₹{{ due.paid_amount|floatformat:2 }}</td>
+                            <td style="font-weight: 700; color: var(--danger);">₹{{ due.balance_amount|floatformat:2 }}</td>
+                            <td>{{ due.due_date }}</td>
+                            <td><span class="badge pending">{{ due.get_status_display }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" style="text-align: center; color: var(--success); font-style: italic; padding: 30px;">
+                                No outstanding dues found. All fee accounts cleared!
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Tab 3: Timeline History -->
+        <div id="timeline-tab" class="glass-panel tab-content" style="display: none;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; color: var(--text-primary);">Academic History Logs</h3>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                {% for log in history %}
+                <div style="display: flex; gap: 16px; border-left: 2px solid var(--primary-light); padding-left: 16px; position: relative;">
+                    <!-- Bullet dot -->
+                    <div style="width: 10px; height: 10px; border-radius: 50%; background-color: var(--primary); position: absolute; left: -6px; top: 6px;"></div>
+                    <div>
+                        <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary);">
+                            {{ log.change_type }} &bull; {{ log.academic_session.name }}
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px;">
+                            {{ log.description }}
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">
+                            Processed by: {{ log.performed_by.username }} @ {{ log.date }}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p style="font-size: 0.9rem; color: var(--text-secondary); font-style: italic;">No audit timeline history records logged.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function switchTab(tabId) {
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(function(content) {
+            content.style.display = 'none';
+        });
+        
+        // Show target tab
+        document.getElementById(tabId).style.display = 'block';
+        
+        // Reset tab buttons style
+        document.getElementById('btn-details').style.color = 'var(--text-secondary)';
+        document.getElementById('btn-details').style.fontWeight = '500';
+        document.getElementById('btn-details').style.borderBottom = 'none';
+        
+        document.getElementById('btn-fees').style.color = 'var(--text-secondary)';
+        document.getElementById('btn-fees').style.fontWeight = '500';
+        document.getElementById('btn-fees').style.borderBottom = 'none';
+        
+        document.getElementById('btn-timeline').style.color = 'var(--text-secondary)';
+        document.getElementById('btn-timeline').style.fontWeight = '500';
+        document.getElementById('btn-timeline').style.borderBottom = 'none';
+        
+        // Set active tab button style
+        let btnId = 'btn-' + tabId.split('-')[0];
+        document.getElementById(btnId).style.color = 'var(--primary)';
+        document.getElementById(btnId).style.fontWeight = '700';
+        document.getElementById(btnId).style.borderBottom = '2px solid var(--primary)';
+        document.getElementById(btnId).style.paddingBottom = '12px';
+    }
+</script>
+{% endblock %}

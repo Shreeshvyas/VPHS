@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% block title %}Promotion Wizard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Student Promotion Wizard</h1>
+        <p>Promote cohorts of students to the next class level in a new academic session.</p>
+    </div>
+    <a href="{% url 'class_list' %}" class="btn btn-outline">
+        <i class="fa-solid fa-arrow-left"></i> Back to Academics
+    </a>
+</div>
+
+<!-- Step 1: Filter Source Cohort -->
+<div class="glass-panel">
+    <div class="panel-header">
+        <h2>1. Select Source Session & Class</h2>
+    </div>
+    <form method="GET" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 20px; align-items: flex-end;">
+        <div class="form-group" style="margin-bottom: 0;">
+            <label>Source Academic Session</label>
+            <select name="source_session" class="form-control" required>
+                <option value="">-- Select Source Session --</option>
+                {% for s in sessions %}
+                <option value="{{ s.id }}" {% if source_session_id == s.id %}selected{% endif %}>{{ s.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 0;">
+            <label>Source Class-Section</label>
+            <select name="source_class_section" class="form-control" required>
+                <option value="">-- Select Class Section --</option>
+                {% for cs in class_sections %}
+                <option value="{{ cs.id }}" {% if source_class_section_id == cs.id %}selected{% endif %}>{{ cs }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <button type="submit" class="btn btn-secondary">
+            <i class="fa-solid fa-filter"></i> Load Students
+        </button>
+    </form>
+</div>
+
+{% if source_session_id and source_class_section_id %}
+<form method="POST">
+    {% csrf_token %}
+    
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-top: 24px;">
+        <!-- Students Checklist -->
+        <div class="glass-panel">
+            <div class="panel-header">
+                <h2>2. Select Students to Promote</h2>
+                <div style="display: flex; gap: 8px; align-items: center; font-size: 0.85rem;">
+                    <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">
+                    <label for="selectAll" style="margin-bottom: 0; cursor: pointer; font-weight: 600;">Select All</label>
+                </div>
+            </div>
+            
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th width="40">Select</th>
+                            <th>Admission No</th>
+                            <th>Roll No</th>
+                            <th>Student Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for en in students_to_promote %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="promote_students" value="{{ en.id }}" class="student-checkbox">
+                            </td>
+                            <td>{{ en.student.admission_number }}</td>
+                            <td>{{ en.roll_number|default:"-" }}</td>
+                            <td style="font-weight: 600;">{{ en.student.full_name }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 30px; font-style: italic;">
+                                No enrolled students found in this source cohort.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Destination Selection -->
+        <div>
+            <div class="glass-panel">
+                <div class="panel-header">
+                    <h2>3. Select Destination</h2>
+                </div>
+                
+                <div class="form-group">
+                    <label>Destination Academic Session</label>
+                    <select name="dest_session_post" class="form-control" required>
+                        <option value="">-- Select Destination Session --</option>
+                        {% for s in sessions %}
+                        {% if s.id != source_session_id %}
+                        <option value="{{ s.id }}" {% if dest_session_id == s.id %}selected{% endif %}>{{ s.name }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Destination Class-Section</label>
+                    <select name="dest_class_section_post" class="form-control" required>
+                        <option value="">-- Select Destination Class --</option>
+                        {% for cs in class_sections %}
+                        <option value="{{ cs.id }}" {% if dest_class_section_id == cs.id %}selected{% endif %}>{{ cs }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
+                    <i class="fa-solid fa-circle-info" style="color: var(--primary);"></i>
+                    Promoting students creates new enrollment structures for the destination session and allocates class-default fee rules automatically.
+                </p>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="return confirm('Promoted students will be registered in the new session. Proceed?');">
+                    <i class="fa-solid fa-graduation-cap"></i> Promote Selected
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleSelectAll(master) {
+        let checkboxes = document.querySelectorAll('.student-checkbox');
+        checkboxes.forEach(function(cb) {
+            cb.checked = master.checked;
+        });
+    }
+</script>
+{% endblock %}

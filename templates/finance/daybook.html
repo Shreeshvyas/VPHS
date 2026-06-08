@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Daily Daybook Ledger{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Cashbook & Daybook Ledgers</h1>
+        <p>Monitor daily transactions, opening balances, closing balances, and running cash accounts.</p>
+    </div>
+</div>
+
+<!-- Tabs Navigation -->
+<div style="display: flex; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+    <a href="{% url 'daybook' %}" style="font-weight: 700; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 12px;">Daily Daybook</a>
+    <a href="{% url 'cashbook' %}" style="font-weight: 500; color: var(--text-secondary); padding-bottom: 12px;">General Ledger Accounts</a>
+</div>
+
+<div class="glass-panel" style="margin-bottom: 24px;">
+    <div class="panel-header">
+        <h2>Daybook Filter</h2>
+        
+        <!-- Date Selector Form -->
+        <form method="GET" style="display: flex; gap: 12px; align-items: center;">
+            <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Select Date:</label>
+            <input type="date" name="date" value="{{ target_date|date:'Y-m-d' }}" class="form-control" style="width: 180px; padding: 8px 12px;" onchange="this.form.submit()">
+            {% if request.GET.date %}
+            <a href="{% url 'daybook' %}" class="btn btn-outline btn-sm">Today</a>
+            {% endif %}
+        </form>
+    </div>
+    
+    <!-- Summary Balance Grid -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 16px;">
+        <!-- Cash Drawer Summary -->
+        <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; background-color: rgba(255,255,255,0.4);">
+            <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); border-bottom: 1px solid var(--border-color); padding-bottom: 6px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-wallet" style="color: var(--accent);"></i> CASH DRAWER OVERVIEW
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.85rem;">
+                <div>Opening Balance: <strong>₹{{ opening_cash|floatformat:2 }}</strong></div>
+                <div style="color: var(--success);">Total Debits (+): <strong>₹{{ debits_cash|floatformat:2 }}</strong></div>
+                <div style="color: var(--danger);">Total Credits (-): <strong>₹{{ credits_cash|floatformat:2 }}</strong></div>
+                <div style="border-top: 1px dashed var(--border-color); padding-top: 6px; font-weight: 700;">Closing Balance: <strong>₹{{ closing_cash|floatformat:2 }}</strong></div>
+            </div>
+        </div>
+
+        <!-- Bank/UPI Summary -->
+        <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; background-color: rgba(255,255,255,0.4);">
+            <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); border-bottom: 1px solid var(--border-color); padding-bottom: 6px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-building-columns" style="color: var(--primary);"></i> BANK ACCOUNTS OVERVIEW
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.85rem;">
+                <div>Opening Balance: <strong>₹{{ opening_bank|floatformat:2 }}</strong></div>
+                <div style="color: var(--success);">Total Debits (+): <strong>₹{{ debits_bank|floatformat:2 }}</strong></div>
+                <div style="color: var(--danger);">Total Credits (-): <strong>₹{{ credits_bank|floatformat:2 }}</strong></div>
+                <div style="border-top: 1px dashed var(--border-color); padding-top: 6px; font-weight: 700;">Closing Balance: <strong>₹{{ closing_bank|floatformat:2 }}</strong></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="glass-panel">
+    <div class="panel-header">
+        <h2>Transactions for {{ target_date|date:"F d, Y" }}</h2>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="custom-table" style="font-size: 0.9rem;">
+            <thead>
+                <tr>
+                    <th>Ref ID</th>
+                    <th>Account</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th style="color: var(--success);">Debit (In, $)</th>
+                    <th style="color: var(--danger);">Credit (Out, $)</th>
+                    <th>Recorded By</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in day_entries %}
+                <tr>
+                    <td style="font-family: monospace; font-weight: 700;">{{ entry.reference_id|default:"-" }}</td>
+                    <td>
+                        <span class="badge {% if entry.payment_mode == 'CASH' %}warning{% else %}primary{% endif %}">
+                            {{ entry.get_payment_mode_display }}
+                        </span>
+                    </td>
+                    <td><span class="badge info">{{ entry.get_category_display }}</span></td>
+                    <td style="max-width: 250px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="{{ entry.description }}">{{ entry.description }}</td>
+                    <td style="font-weight: 700; color: var(--success);">
+                        {% if entry.entry_type == 'DEBIT' %}₹{{ entry.amount|floatformat:2 }}{% else %}-{% endif %}
+                    </td>
+                    <td style="font-weight: 700; color: var(--danger);">
+                        {% if entry.entry_type == 'CREDIT' %}₹{{ entry.amount|floatformat:2 }}{% else %}-{% endif %}
+                    </td>
+                    <td>{{ entry.recorded_by.username|default:"System" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 30px; font-style: italic;">
+                        No ledger transactions recorded on this date.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}System Activity Logs{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>System Activity Logs</h1>
+        <p>Trace log auditing records of user actions, login/logout timestamps, and database modifications.</p>
+    </div>
+</div>
+
+<div class="glass-panel">
+    <div class="panel-header">
+        <h2>Activity Audit Records</h2>
+        
+        <!-- Search and Filter Form -->
+        <form method="GET" style="display: flex; gap: 12px; align-items: center;">
+            <div class="header-search" style="width: 220px;">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" name="q" value="{{ query }}" placeholder="Search action/IP...">
+            </div>
+            <select name="user_id" class="form-control" style="width: 180px; padding: 8px 12px;" onchange="this.form.submit()">
+                <option value="">All Users</option>
+                {% for u in users %}
+                <option value="{{ u.id }}" {% if user_id == u.id|stringformat:"s" %}selected{% endif %}>{{ u.username }}</option>
+                {% endfor %}
+            </select>
+            {% if query or user_id %}
+            <a href="{% url 'activity_logs' %}" class="btn btn-outline btn-sm">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="custom-table" style="font-size: 0.9rem;">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>IP Address</th>
+                    <th>Details / Metadata</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in page_obj %}
+                <tr>
+                    <td style="white-space: nowrap;">{{ log.timestamp }}</td>
+                    <td style="font-weight: 600;">{{ log.user.username|default:"Anonymous" }}</td>
+                    <td><span class="badge info">{{ log.action }}</span></td>
+                    <td style="font-family: monospace;">{{ log.ip_address|default:"-" }}</td>
+                    <td style="font-family: monospace; font-size: 0.8rem; word-break: break-all;">
+                        {{ log.details_dict }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align: center; color: var(--text-secondary); font-style: italic; padding: 30px;">
+                        No system activity audit records found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div style="display: flex; justify-content: center; gap: 8px; margin-top: 20px;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}&user_id={{ user_id }}" class="btn btn-outline btn-sm">&laquo; Previous</a>
+        {% endif %}
+        <span style="align-self: center; font-size: 0.9rem; color: var(--text-secondary);">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&q={{ query }}&user_id={{ user_id }}" class="btn btn-outline btn-sm">Next &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

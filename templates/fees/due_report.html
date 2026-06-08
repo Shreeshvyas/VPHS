@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Due Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Due Management</h1>
+        <p>Monitor unpaid balances and dispatch automated reminder updates.</p>
+    </div>
+</div>
+
+<div class="glass-panel">
+    <div class="panel-header">
+        <h2>Unpaid Accounts</h2>
+        
+        <!-- Filter Form -->
+        <form method="GET" style="display: flex; gap: 12px; align-items: center;">
+            <select name="class_level" class="form-control" style="width: 200px; padding: 8px 12px;" onchange="this.form.submit()">
+                <option value="">All Classes</option>
+                {% for cl in class_levels %}
+                <option value="{{ cl.id }}" {% if class_id == cl.id %}selected{% endif %}>{{ cl.name }}</option>
+                {% endfor %}
+            </select>
+            {% if class_id %}
+            <a href="{% url 'due_report' %}" class="btn btn-outline btn-sm">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Admission No</th>
+                    <th>Student Name</th>
+                    <th>Class Section</th>
+                    <th>Guardian Mobile</th>
+                    <th>Outstanding Dues (₹)</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in student_dues %}
+                <tr>
+                    <td style="font-family: monospace;">{{ row.student.admission_number }}</td>
+                    <td style="font-weight: 600;">{{ row.student.full_name }}</td>
+                    <td><span class="badge info">{{ row.class_section }}</span></td>
+                    <td>{{ row.student.guardian_mobile }}</td>
+                    <td style="font-weight: 700; color: var(--danger);">₹{{ row.due_amount|floatformat:2 }}</td>
+                    <td style="text-align: right; display: flex; gap: 8px; justify-content: flex-end;">
+                        <a href="{% url 'collect_fee' row.enrollment.id %}" class="btn btn-primary btn-sm">
+                            <i class="fa-solid fa-cash-register"></i> Pay
+                        </a>
+                        <a href="{% url 'send_due_reminder' row.enrollment.id %}" class="btn btn-secondary btn-sm" title="Dispatch SMS & WhatsApp due notices">
+                            <i class="fa-solid fa-paper-plane"></i> Remind
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--success); font-style: italic; padding: 30px;">
+                        No outstanding due records found. All accounts clear!
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

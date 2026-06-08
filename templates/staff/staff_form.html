@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>{{ title }}</h1>
+        <p>Record employee demographics, bank routing information, and active credentials.</p>
+    </div>
+    <a href="javascript:history.back()" class="btn btn-outline">
+        <i class="fa-solid fa-arrow-left"></i> Cancel and Back
+    </a>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+        <!-- Employee detail cards -->
+        <div class="glass-panel">
+            <div class="panel-header">
+                <h2>1. Profile Information</h2>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="{{ form.employee_id.id_for_label }}">Employee ID</label>
+                    {{ form.employee_id }}
+                    {{ form.employee_id.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.user.id_for_label }}">Link System Account</label>
+                    {{ form.user }}
+                    {{ form.user.errors }}
+                </div>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                    {{ form.first_name }}
+                    {{ form.first_name.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+                    {{ form.last_name }}
+                    {{ form.last_name.errors }}
+                </div>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="{{ form.department.id_for_label }}">Department</label>
+                    {{ form.department }}
+                    {{ form.department.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.designation.id_for_label }}">Designation</label>
+                    {{ form.designation }}
+                    {{ form.designation.errors }}
+                </div>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="{{ form.mobile.id_for_label }}">Mobile Number</label>
+                    {{ form.mobile }}
+                    {{ form.mobile.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.joining_date.id_for_label }}">Joining Date</label>
+                    {{ form.joining_date }}
+                    {{ form.joining_date.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.status.id_for_label }}">Employment Status</label>
+                    {{ form.status }}
+                    {{ form.status.errors }}
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.address.id_for_label }}">Residential Address</label>
+                {{ form.address }}
+                {{ form.address.errors }}
+            </div>
+            
+            <div class="panel-header" style="margin-top: 32px;">
+                <h2>2. Bank Accounts Details</h2>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="{{ form.bank_name.id_for_label }}">Bank Name</label>
+                    {{ form.bank_name }}
+                    {{ form.bank_name.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.bank_account_number.id_for_label }}">Account Number</label>
+                    {{ form.bank_account_number }}
+                    {{ form.bank_account_number.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.ifsc_code.id_for_label }}">IFSC Routing Code</label>
+                    {{ form.ifsc_code }}
+                    {{ form.ifsc_code.errors }}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar controls -->
+        <div>
+            <div class="glass-panel">
+                <div class="panel-header">
+                    <h2>3. Default Pay scale</h2>
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.base_salary.id_for_label }}">Basic Monthly Salary (₹)</label>
+                    {{ form.base_salary }}
+                    {{ form.base_salary.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.document_file.id_for_label }}">Attach Document (Resume/ID)</label>
+                    {{ form.document_file }}
+                    {{ form.document_file.errors }}
+                </div>
+            </div>
+            
+            <div class="glass-panel" style="text-align: center;">
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 1rem;">
+                    <i class="fa-solid fa-save"></i> Save Employee Profile
+                </button>
+                <a href="javascript:history.back()" class="btn btn-outline" style="width: 100%; justify-content: center; margin-top: 12px;">Cancel</a>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

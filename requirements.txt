@@ -1,0 +1,4 @@
+Django>=4.0
+reportlab>=3.6
+openpyxl>=3.0
+django-environ>=0.8

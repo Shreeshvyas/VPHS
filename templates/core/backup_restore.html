@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Database Backup & Restore{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Database Backup & Restore</h1>
+        <p>Safeguard system integrity. Create point-in-time snapshots or restore files (Super Admin only).</p>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
+    <!-- Create Backup Panel -->
+    <div>
+        <div class="glass-panel">
+            <div class="panel-header">
+                <h2>Take System Snapshot</h2>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6;">
+                Initiating a database snapshot copies the sqlite database binary state to a timestamped backup file in the backups folder. 
+            </p>
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" name="create_backup" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Create Snapshot Backup
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Restore Backup Panel -->
+    <div>
+        <div class="glass-panel">
+            <div class="panel-header">
+                <h2>Restore Snapshot Archives</h2>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Backup Archive File Name</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in backups %}
+                        <tr>
+                            <td style="font-family: monospace; font-size: 0.9rem;">{{ file }}</td>
+                            <td style="text-align: right;">
+                                <form method="POST" style="display: inline-block;" onsubmit="return confirm('WARNING: Restoring a backup overwrites ALL current records with the contents of this archive. Proceed?');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="backup_file" value="{{ file }}">
+                                    <button type="submit" name="restore_backup" class="btn btn-danger btn-sm">
+                                        <i class="fa-solid fa-rotate-left"></i> Restore
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2" style="text-align: center; color: var(--text-secondary); font-style: italic; padding: 30px;">
+                                No database backup files archived yet. Click 'Create Snapshot' to get started.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

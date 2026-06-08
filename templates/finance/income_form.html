@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>{{ title }}</h1>
+        <p>Log a non-fee cash inflow. This transaction will automatically create a Cashbook debit entry.</p>
+    </div>
+    <a href="{% url 'income_list' %}" class="btn btn-outline">
+        <i class="fa-solid fa-arrow-left"></i> Cancel
+    </a>
+</div>
+
+<div class="glass-panel" style="max-width: 600px; margin: 0 auto;">
+    <div class="panel-header">
+        <h2>Income Details</h2>
+    </div>
+    
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.source.id_for_label }}">Source of Income</label>
+            {{ form.source }}
+            {% if form.source.errors %}
+            <div style="color: var(--danger); font-size: 0.85rem; margin-top: 4px;">{{ form.source.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-grid" style="margin-bottom: 20px;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="{{ form.amount.id_for_label }}">Amount Received (₹)</label>
+                {{ form.amount }}
+                {% if form.amount.errors %}
+                <div style="color: var(--danger); font-size: 0.85rem; margin-top: 4px;">{{ form.amount.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="{{ form.income_date.id_for_label }}">Receipt Date</label>
+                {{ form.income_date }}
+                {% if form.income_date.errors %}
+                <div style="color: var(--danger); font-size: 0.85rem; margin-top: 4px;">{{ form.income_date.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.description.id_for_label }}">Description / Remarks</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+            <div style="color: var(--danger); font-size: 0.85rem; margin-top: 4px;">{{ form.description.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div style="padding: 16px; background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-bottom: 20px;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="id_payment_mode" style="margin-bottom: 6px;">Received into Account</label>
+                <select name="payment_mode" id="id_payment_mode" class="form-control" required>
+                    <option value="CASH">Cash Drawer</option>
+                    <option value="BANK">Bank Account / UPI</option>
+                </select>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 1rem;">
+            <i class="fa-solid fa-save"></i> Save & Log Inflow
+        </button>
+    </form>
+</div>
+{% endblock %}

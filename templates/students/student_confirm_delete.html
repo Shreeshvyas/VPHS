@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Confirm Delete Student{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Confirm Deletion</h1>
+        <p>Removing student registry record for {{ student.full_name }}.</p>
+    </div>
+</div>
+
+<div class="glass-panel" style="max-width: 500px; margin: 0 auto; text-align: center;">
+    <div style="font-size: 3rem; color: var(--danger); margin-bottom: 20px;">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+    </div>
+    
+    <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Are you sure?</h2>
+    <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6;">
+        You are about to soft-delete the student file for <strong>{{ student.full_name }}</strong> (Adm No: {{ student.admission_number }}).
+        This will remove the student from directories and rosters, but historical fee collections, invoices, and ledger records will be preserved for auditing.
+    </p>
+    
+    <form method="POST">
+        {% csrf_token %}
+        <div style="display: flex; gap: 12px; justify-content: center;">
+            <a href="{% url 'student_profile' student.pk %}" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-danger">
+                <i class="fa-solid fa-trash"></i> Confirm Soft-Delete
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

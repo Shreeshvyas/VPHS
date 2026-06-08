@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% block title %}Scholarships & Discounts{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Fee Configurations</h1>
+        <p>Set up fee structures, definitions, and scholarships/discounts.</p>
+    </div>
+</div>
+
+<!-- Tabs Navigation -->
+<div style="display: flex; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+    <a href="{% url 'fee_type_list' %}" style="font-weight: 500; color: var(--text-secondary); padding-bottom: 12px;">Fee Components</a>
+    <a href="{% url 'class_fee_list' %}" style="font-weight: 500; color: var(--text-secondary); padding-bottom: 12px;">Class Structures</a>
+    <a href="{% url 'student_discount_list' %}" style="font-weight: 700; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 12px;">Scholarships & Discounts</a>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+    <!-- Discounts List -->
+    <div class="glass-panel">
+        <div class="panel-header">
+            <h2>Active Scholarships & Concessions</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Fee Component</th>
+                        <th>Type</th>
+                        <th>Value</th>
+                        <th>Concession Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for disc in discounts %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ disc.student.full_name }}</td>
+                        <td>{{ disc.fee_type.name }}</td>
+                        <td><span class="badge info">{{ disc.get_discount_type_display }}</span></td>
+                        <td style="font-weight: 700;">
+                            {% if disc.discount_type == 'PERCENTAGE' %}{{ disc.value }}%{% else %}₹{{ disc.value|floatformat:2 }}{% endif %}
+                        </td>
+                        <td>{{ disc.reason|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 20px;">No student concessions registered yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Add Discount Form -->
+    <div>
+        <div class="glass-panel">
+            <div class="panel-header">
+                <h2>Configure Concession</h2>
+            </div>
+            
+            <!-- Student Search Box -->
+            <div class="form-group" style="position: relative;">
+                <label>1. Search Student</label>
+                <div style="position: relative;">
+                    <i class="fa-solid fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"></i>
+                    <input type="text" id="studentSearchInput" class="form-control" style="padding-left: 40px;" placeholder="Type name or Adm No..." autocomplete="off">
+                </div>
+                <div id="suggestionsBox" class="autocomplete-suggestions" style="display: none;"></div>
+            </div>
+            
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.student }} <!-- Hidden ID input -->
+                
+                <div style="padding: 12px; background: var(--primary-light); border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-bottom: 20px; display: none;" id="selectedStudentDisplay">
+                    <span style="font-size: 0.8rem; text-transform: uppercase; font-weight: 600; color: var(--text-secondary);">Selected Student:</span>
+                    <div id="studentNameDisplay" style="font-weight: 700; color: var(--primary); font-size: 1rem; margin-top: 4px;">None</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.fee_type.id_for_label }}">2. Fee Component</label>
+                    {{ form.fee_type }}
+                    {{ form.fee_type.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.discount_type.id_for_label }}">3. Concession Type</label>
+                    {{ form.discount_type }}
+                    {{ form.discount_type.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.value.id_for_label }}">4. Discount Value (Fixed / %)</label>
+                    {{ form.value }}
+                    {{ form.value.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.reason.id_for_label }}">5. Reason / Scholarship Title</label>
+                    {{ form.reason }}
+                    {{ form.reason.errors }}
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;" id="saveDiscountBtn" disabled>
+                    <i class="fa-solid fa-save"></i> Save Concession
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.getElementById("studentSearchInput");
+        const suggestionsBox = document.getElementById("suggestionsBox");
+        const hiddenStudentInput = document.getElementById("id_student");
+        const selectedDisplay = document.getElementById("selectedStudentDisplay");
+        const nameDisplay = document.getElementById("studentNameDisplay");
+        const saveBtn = document.getElementById("saveDiscountBtn");
+        
+        searchInput.addEventListener("input", function() {
+            const val = this.value.trim();
+            if (val.length < 2) {
+                suggestionsBox.style.display = "none";
+                return;
+            }
+            
+            fetch(`/students/api/search/?q=${encodeURIComponent(val)}`)
+                .then(res => res.json())
+                .then(data => {
+                    suggestionsBox.innerHTML = "";
+                    if (data.results.length === 0) {
+                        suggestionsBox.style.display = "none";
+                        return;
+                    }
+                    
+                    data.results.forEach(student => {
+                        const div = document.createElement("div");
+                        div.className = "autocomplete-suggestion";
+                        div.innerHTML = `<strong>${student.name}</strong> (${student.admission_number}) - ${student.class_section}`;
+                        div.addEventListener("click", function() {
+                            hiddenStudentInput.value = student.student_id;
+                            nameDisplay.textContent = `${student.name} (${student.admission_number})`;
+                            selectedDisplay.style.display = "block";
+                            searchInput.value = "";
+                            suggestionsBox.style.display = "none";
+                            saveBtn.disabled = false;
+                        });
+                        suggestionsBox.appendChild(div);
+                    });
+                    suggestionsBox.style.display = "block";
+                });
+        });
+        
+        // Hide autocomplete when clicking outside
+        document.addEventListener("click", function(e) {
+            if (e.target !== searchInput) {
+                suggestionsBox.style.display = "none";
+            }
+        });
+    });
+</script>
+{% endblock %}

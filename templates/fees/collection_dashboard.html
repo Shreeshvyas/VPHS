@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Collect Fees{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Fee Collection Wizard</h1>
+        <p>Search students to process fee collections, apply concessions, and download PDF receipts.</p>
+    </div>
+</div>
+
+<div class="glass-panel" style="max-width: 600px; margin: 40px auto; padding: 40px; text-align: center;">
+    <div style="font-size: 3.5rem; color: var(--primary); margin-bottom: 24px;">
+        <i class="fa-solid fa-cash-register"></i>
+    </div>
+    
+    <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; color: var(--text-primary);">Search Student File</h2>
+    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 30px;">
+        Enter student name, admission number, or roll number to start.
+    </p>
+    
+    <div style="position: relative; text-align: left;">
+        <i class="fa-solid fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 1.1rem;"></i>
+        <input type="text" id="collectStudentSearch" class="form-control" style="padding: 14px 20px 14px 48px; font-size: 1.05rem; border-radius: var(--radius-md);" placeholder="Type name, roll or admission number..." autocomplete="off">
+        <div id="collectSuggestionsBox" class="autocomplete-suggestions" style="display: none; border-radius: var(--radius-md); text-align: left; width: 100%; box-shadow: var(--shadow-lg);"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.getElementById("collectStudentSearch");
+        const suggestionsBox = document.getElementById("collectSuggestionsBox");
+        
+        searchInput.addEventListener("input", function() {
+            const val = this.value.trim();
+            if (val.length < 2) {
+                suggestionsBox.style.display = "none";
+                return;
+            }
+            
+            fetch(`/students/api/search/?q=${encodeURIComponent(val)}`)
+                .then(res => res.json())
+                .then(data => {
+                    suggestionsBox.innerHTML = "";
+                    if (data.results.length === 0) {
+                        suggestionsBox.style.display = "none";
+                        return;
+                    }
+                    
+                    data.results.forEach(student => {
+                        const div = document.createElement("div");
+                        div.className = "autocomplete-suggestion";
+                        div.style.padding = "12px 20px";
+                        div.innerHTML = `<strong>${student.name}</strong> (${student.admission_number}) - ${student.class_section} (Roll: ${student.roll_number})`;
+                        div.addEventListener("click", function() {
+                            // Redirect to payment wizard for the chosen student enrollment
+                            location.href = `/fees/collect/${student.id}/process/`;
+                        });
+                        suggestionsBox.appendChild(div);
+                    });
+                    suggestionsBox.style.display = "block";
+                });
+        });
+        
+        document.addEventListener("click", function(e) {
+            if (e.target !== searchInput) {
+                suggestionsBox.style.display = "none";
+            }
+        });
+    });
+</script>
+{% endblock %}

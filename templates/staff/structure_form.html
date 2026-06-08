@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Salary Structure Configuration{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Configure Salary Structure</h1>
+        <p>Edit basic monthly scales, allowances, and deduction items for {{ staff.full_name }}.</p>
+    </div>
+    <a href="{% url 'staff_profile' staff.pk %}" class="btn btn-outline">
+        <i class="fa-solid fa-arrow-left"></i> Cancel and Back
+    </a>
+</div>
+
+<div class="glass-panel" style="max-width: 500px; margin: 0 auto;">
+    <div class="panel-header">
+        <h2>Pay Scale Configurations</h2>
+    </div>
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.basic_salary.id_for_label }}">Basic Monthly Salary (₹)</label>
+            {{ form.basic_salary }}
+            {{ form.basic_salary.errors }}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.allowance_default.id_for_label }}">Default Allowance / Incentives (₹)</label>
+            {{ form.allowance_default }}
+            {{ form.allowance_default.errors }}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.pf_deduction_default.id_for_label }}">Default PF Provident Fund Deduction (₹)</label>
+            {{ form.pf_deduction_default }}
+            {{ form.pf_deduction_default.errors }}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.tax_deduction_default.id_for_label }}">Default Income Tax Deduction (₹)</label>
+            {{ form.tax_deduction_default }}
+            {{ form.tax_deduction_default.errors }}
+        </div>
+        
+        <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+            <a href="{% url 'staff_profile' staff.pk %}" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-save"></i> Save Structure
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
