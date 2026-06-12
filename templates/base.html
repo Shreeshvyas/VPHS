@@ -7,7 +7,7 @@
     <title>{% block title %}School ERP Dashboard{% endblock %} | Vyas public school</title>
     <!-- Fonts and Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=2.0">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -15,10 +15,11 @@
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <div class="user-avatar" style="background-color: var(--sidebar-active); color: var(--sidebar-bg);">
-                    <i class="fa-solid fa-graduation-cap"></i>
+                <img src="{% static 'logo.png' %}" alt="VYAS Logo" style="width: 42px; height: 42px; object-fit: contain; border-radius: 50%; background: #fff; padding: 2px; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+                <div class="sidebar-logo" style="line-height: 1.25; display: flex; flex-direction: column;">
+                    <span style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); letter-spacing: 0.5px;">VYAS PUBLIC</span>
+                    <span style="font-size: 0.72rem; color: var(--sidebar-active); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">H.S. SCHOOL</span>
                 </div>
-                <div class="sidebar-logo">VYAS PUBLIC SCHOOL</div>
             </div>
             
             <ul class="sidebar-menu">
@@ -143,7 +144,10 @@
         <main class="main-wrapper">
             <!-- Header bar -->
             <header class="main-header">
-                <div class="header-left">
+                <div class="header-left" style="display: flex; align-items: center;">
+                    <button class="mobile-sidebar-toggle" id="sidebar-toggle" aria-label="Toggle Sidebar" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-primary); margin-right: 15px; display: none;">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
                     <div class="session-indicator">
                         <i class="fa-solid fa-calendar-days"></i>
                         Session: {{ ACTIVE_SESSION.name|default:"None Configured" }}
@@ -199,6 +203,26 @@
                 }, 500);
             });
         }, 5000);
+
+        // Mobile Sidebar Toggle
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.querySelector('.sidebar');
+        
+        if (sidebarToggle && sidebar) {
+            sidebarToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                sidebar.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                    if (!sidebar.contains(e.target) && e.target !== sidebarToggle) {
+                        sidebar.classList.remove('active');
+                    }
+                }
+            });
+        }
     </script>
     {% block extra_js %}{% endblock %}
 </body>
