@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Access Denied{% endblock %}
+
+{% block content %}
+<div style="display: flex; align-items: center; justify-content: center; min-height: 70vh;">
+    <!-- Glassmorphic Modal-style Card -->
+    <div class="glass-panel" style="max-width: 480px; text-align: center; padding: 40px; border-top: 4px solid var(--danger); box-shadow: var(--shadow-lg); border-radius: var(--radius-md);">
+        
+        <div style="width: 80px; height: 80px; background-color: rgba(239, 68, 68, 0.1); color: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+            <i class="fa-solid fa-user-lock" style="font-size: 2.5rem;"></i>
+        </div>
+        
+        <h2 style="font-size: 1.6rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Access Denied</h2>
+        
+        <p style="color: var(--text-secondary); font-size: 1rem; line-height: 1.6; margin-bottom: 30px;">
+            You don't have access rights to perform this action or view this resource. Please contact your administrator if you need permission.
+        </p>
+        
+        <div style="display: flex; gap: 12px; justify-content: center;">
+            <a href="javascript:history.back()" class="btn btn-outline">
+                <i class="fa-solid fa-arrow-left"></i> Go Back
+            </a>
+            <a href="{% url 'dashboard' %}" class="btn btn-primary">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

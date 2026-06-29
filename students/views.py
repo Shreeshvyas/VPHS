@@ -169,10 +169,20 @@ def student_create(request):
 @staff_only
 def student_update(request, pk):
     student = get_object_or_404(Student, pk=pk, is_deleted=False)
+    enrollment = student.enrollments.filter(is_deleted=False).order_by('-academic_session__start_date').first()
+    
     if request.method == 'POST':
         form = StudentForm(request.POST, request.FILES, instance=student)
-        if form.is_valid():
-            form.save()
+        enrollment_form = StudentEnrollmentForm(request.POST, instance=enrollment)
+        if form.is_valid() and enrollment_form.is_valid():
+            with transaction.atomic():
+                form.save()
+                if enrollment:
+                    enrollment_form.save()
+                else:
+                    new_enroll = enrollment_form.save(commit=False)
+                    new_enroll.student = student
+                    new_enroll.save()
             log_activity(request.user, "STUDENT_UPDATE", {"student": student.full_name}, request)
             messages.success(request, f"Student {student.full_name} profile updated.")
             return redirect('student_profile', pk=student.pk)
@@ -180,7 +190,12 @@ def student_update(request, pk):
             messages.error(request, "Please correct the errors.")
     else:
         form = StudentForm(instance=student)
-    return render(request, 'students/student_form.html', {'student_form': form, 'title': f"Edit Profile: {student.full_name}"})
+        enrollment_form = StudentEnrollmentForm(instance=enrollment)
+    return render(request, 'students/student_form.html', {
+        'student_form': form,
+        'enrollment_form': enrollment_form,
+        'title': f"Edit Profile: {student.full_name}"
+    })
 
 @login_required
 @admin_only

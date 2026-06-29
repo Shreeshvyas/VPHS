@@ -65,9 +65,18 @@ def class_list(request):
     if request.method == 'POST':
         form = ClassLevelForm(request.POST)
         if form.is_valid():
-            cls = form.save()
-            log_activity(request.user, "CREATE_CLASS", {"class": cls.name})
-            messages.success(request, f"Class {cls.name} created successfully.")
+            name = form.cleaned_data.get('name')
+            existing = ClassLevel.all_objects.filter(name__iexact=name).first()
+            if existing:
+                if existing.is_deleted:
+                    existing.restore()
+                    messages.success(request, f"Class {existing.name} (previously deleted) has been restored.")
+                else:
+                    messages.error(request, f"Class {existing.name} already exists.")
+            else:
+                cls = form.save()
+                log_activity(request.user, "CREATE_CLASS", {"class": cls.name})
+                messages.success(request, f"Class {cls.name} created successfully.")
             return redirect('class_list')
     else:
         form = ClassLevelForm()
@@ -92,9 +101,18 @@ def section_list(request):
     if request.method == 'POST':
         form = SectionForm(request.POST)
         if form.is_valid():
-            sec = form.save()
-            log_activity(request.user, "CREATE_SECTION", {"section": sec.name})
-            messages.success(request, f"Section {sec.name} created successfully.")
+            name = form.cleaned_data.get('name')
+            existing = Section.all_objects.filter(name__iexact=name).first()
+            if existing:
+                if existing.is_deleted:
+                    existing.restore()
+                    messages.success(request, f"Section {existing.name} (previously deleted) has been restored.")
+                else:
+                    messages.error(request, f"Section {existing.name} already exists.")
+            else:
+                sec = form.save()
+                log_activity(request.user, "CREATE_SECTION", {"section": sec.name})
+                messages.success(request, f"Section {sec.name} created successfully.")
             return redirect('section_list')
     else:
         form = SectionForm()
@@ -119,9 +137,19 @@ def class_section_list(request):
     if request.method == 'POST':
         form = ClassSectionForm(request.POST)
         if form.is_valid():
-            cs = form.save()
-            log_activity(request.user, "CREATE_CLASS_SECTION", {"class_section": str(cs)})
-            messages.success(request, f"Mapping {cs} created successfully.")
+            class_level = form.cleaned_data.get('class_level')
+            section = form.cleaned_data.get('section')
+            existing = ClassSection.all_objects.filter(class_level=class_level, section=section).first()
+            if existing:
+                if existing.is_deleted:
+                    existing.restore()
+                    messages.success(request, f"Mapping {existing} (previously deleted) has been restored.")
+                else:
+                    messages.error(request, f"Mapping {existing} already exists.")
+            else:
+                cs = form.save()
+                log_activity(request.user, "CREATE_CLASS_SECTION", {"class_section": str(cs)})
+                messages.success(request, f"Mapping {cs} created successfully.")
             return redirect('class_section_list')
     else:
         form = ClassSectionForm()
@@ -149,9 +177,19 @@ def subject_list(request):
             return redirect('subject_list')
         form = SubjectForm(request.POST)
         if form.is_valid():
-            sub = form.save()
-            log_activity(request.user, "CREATE_SUBJECT", {"subject": sub.name, "class": sub.class_level.name})
-            messages.success(request, f"Subject {sub.name} for {sub.class_level.name} created successfully.")
+            name = form.cleaned_data.get('name')
+            class_level = form.cleaned_data.get('class_level')
+            existing = Subject.all_objects.filter(name__iexact=name, class_level=class_level).first()
+            if existing:
+                if existing.is_deleted:
+                    existing.restore()
+                    messages.success(request, f"Subject {existing.name} (previously deleted) has been restored.")
+                else:
+                    messages.error(request, f"Subject {existing.name} already exists for this class.")
+            else:
+                sub = form.save()
+                log_activity(request.user, "CREATE_SUBJECT", {"subject": sub.name, "class": sub.class_level.name})
+                messages.success(request, f"Subject {sub.name} for {sub.class_level.name} created successfully.")
             return redirect('subject_list')
     else:
         form = SubjectForm()
