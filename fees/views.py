@@ -16,7 +16,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 
-from users.decorators import accountant_only, staff_only, principal_only
+from users.decorators import accountant_only, staff_only, principal_only, role_required
 from users.middleware import log_activity
 from academics.models import AcademicSession, ClassLevel
 from students.models import Student, StudentEnrollment
@@ -228,7 +228,7 @@ def collect_fee(request, enrollment_id):
 
 # Receipt management
 @login_required
-@staff_only
+@role_required('SUPER_ADMIN', 'SCHOOL_ADMIN', 'ACCOUNTANT', 'PRINCIPAL')
 def receipt_history(request):
     query = request.GET.get('q', '')
     collections = FeeCollection.objects.all().select_related('student_enrollment__student', 'student_enrollment__class_section__class_level', 'accountant')
@@ -245,7 +245,7 @@ def receipt_history(request):
     return render(request, 'fees/receipt_history.html', {'page_obj': page_obj, 'query': query})
 
 @login_required
-@staff_only
+@role_required('SUPER_ADMIN', 'SCHOOL_ADMIN', 'ACCOUNTANT', 'PRINCIPAL')
 def download_receipt_pdf(request, receipt_id):
     collection = get_object_or_404(FeeCollection, pk=receipt_id, is_deleted=False)
     enrollment = collection.student_enrollment
@@ -359,7 +359,7 @@ def download_receipt_pdf(request, receipt_id):
 
 # Due Management
 @login_required
-@staff_only
+@role_required('SUPER_ADMIN', 'SCHOOL_ADMIN', 'ACCOUNTANT', 'PRINCIPAL')
 def due_report(request):
     class_id = request.GET.get('class_level', '')
     

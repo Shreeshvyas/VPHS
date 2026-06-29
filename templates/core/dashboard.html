@@ -21,6 +21,7 @@
         </div>
     </div>
     
+    {% if request.user.role != 'RECEPTIONIST' %}
     <div class="card stat-card" onclick="location.href='{% url 'receipt_history' %}'" style="cursor: pointer;">
         <div>
             <div class="stat-label">Today's Collections</div>
@@ -53,8 +54,10 @@
             <i class="fa-solid fa-vault"></i>
         </div>
     </div>
+    {% endif %}
 </div>
 
+{% if request.user.role != 'RECEPTIONIST' %}
 <!-- Charts and Recent Activity Grid -->
 <div class="dashboard-grid">
     <!-- Charts Block -->
@@ -146,9 +149,11 @@
         </div>
     </div>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
+{% if request.user.role != 'RECEPTIONIST' %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -232,4 +237,5 @@
         });
     });
 </script>
+{% endif %}
 {% endblock %}

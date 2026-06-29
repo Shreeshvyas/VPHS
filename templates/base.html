@@ -112,12 +112,14 @@
                 </li>
                 {% endif %}
                 
+                {% if request.user.role != 'RECEPTIONIST' %}
                 <li class="menu-item {% if 'reports' in request.path %}active{% endif %}">
                     <a href="{% url 'reports_dashboard' %}">
                         <i class="fa-solid fa-chart-line"></i>
                         <span>Reports</span>
                     </a>
                 </li>
+                {% endif %}
                 
                 {% if request.user.role == 'SUPER_ADMIN' %}
                 <li class="menu-item {% if 'backup' in request.path %}active{% endif %}">

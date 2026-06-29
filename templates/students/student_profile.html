@@ -35,10 +35,12 @@
             <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--text-primary);">{{ student.full_name }}</h2>
             <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">Adm No: <strong>{{ student.admission_number }}</strong></p>
             
+            {% if request.user.role != 'RECEPTIONIST' %}
             <div style="margin-top: 20px; padding: 12px; background-color: var(--primary-light); border-radius: var(--radius-sm); border: 1px solid rgba(30, 58, 138, 0.1);">
                 <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Outstanding Fee Dues</div>
                 <div style="font-size: 1.5rem; font-weight: 700; color: var(--danger); margin-top: 4px;">₹{{ total_due|floatformat:2 }}</div>
             </div>
+            {% endif %}
             
             <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 24px;">
                 <a href="{% url 'student_id_card' student.pk %}" target="_blank" class="btn btn-primary" style="justify-content: center; width: 100%;">
@@ -53,7 +55,9 @@
         <!-- Tabs Navigation -->
         <div style="display: flex; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
             <button onclick="switchTab('details-tab')" id="btn-details" style="background: none; border: none; font-size: 1rem; font-weight: 700; color: var(--primary); cursor: pointer; border-bottom: 2px solid var(--primary); padding-bottom: 12px;">Profile Info</button>
+            {% if request.user.role != 'RECEPTIONIST' %}
             <button onclick="switchTab('fees-tab')" id="btn-fees" style="background: none; border: none; font-size: 1rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; padding-bottom: 12px;">Outstanding Dues</button>
+            {% endif %}
             <button onclick="switchTab('timeline-tab')" id="btn-timeline" style="background: none; border: none; font-size: 1rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; padding-bottom: 12px;">Academic History</button>
         </div>
         
@@ -74,6 +78,14 @@
                         <tr>
                             <td style="font-weight: 600; color: var(--text-secondary);">Aadhaar Card No:</td>
                             <td style="font-family: monospace;">{{ student.aadhaar_number|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Scholar Number:</td>
+                            <td>{{ student.scholar_number|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Samagra ID:</td>
+                            <td>{{ student.samagra_id|default:"-" }}</td>
                         </tr>
                         <tr>
                             <td style="font-weight: 600; color: var(--text-secondary);">Admission Date:</td>
@@ -116,6 +128,7 @@
             </div>
         </div>
         
+        {% if request.user.role != 'RECEPTIONIST' %}
         <!-- Tab 2: Fees -->
         <div id="fees-tab" class="glass-panel tab-content" style="display: none;">
             <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; color: var(--text-primary);">Outstanding Payments</h3>
@@ -156,6 +169,7 @@
                 </table>
             </div>
         </div>
+        {% endif %}
         
         <!-- Tab 3: Timeline History -->
         <div id="timeline-tab" class="glass-panel tab-content" style="display: none;">

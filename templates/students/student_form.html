@@ -78,6 +78,19 @@
             
             <div class="form-grid" style="margin-bottom: 20px;">
                 <div class="form-group">
+                    <label for="{{ student_form.scholar_number.id_for_label }}">Scholar Number</label>
+                    {{ student_form.scholar_number }}
+                    {{ student_form.scholar_number.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ student_form.samagra_id.id_for_label }}">Samagra ID</label>
+                    {{ student_form.samagra_id }}
+                    {{ student_form.samagra_id.errors }}
+                </div>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
                     <label for="{{ student_form.category.id_for_label }}">Social Category</label>
                     {{ student_form.category }}
                     {{ student_form.category.errors }}

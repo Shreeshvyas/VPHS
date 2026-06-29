@@ -10,7 +10,7 @@ class StudentForm(forms.ModelForm):
             'father_name', 'mother_name', 'guardian_name',
             'guardian_relation', 'guardian_mobile', 'guardian_email',
             'address', 'city', 'state', 'date_of_birth', 'gender',
-            'aadhaar_number', 'admission_date', 'blood_group',
+            'aadhaar_number', 'scholar_number', 'samagra_id', 'admission_date', 'blood_group',
             'category', 'photo', 'previous_school_details', 'status'
         ]
         widgets = {
@@ -29,6 +29,8 @@ class StudentForm(forms.ModelForm):
             'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'gender': forms.Select(attrs={'class': 'form-control'}),
             'aadhaar_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '12-digit Aadhaar'}),
+            'scholar_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Scholar Number'}),
+            'samagra_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '9-digit Samagra ID'}),
             'admission_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'blood_group': forms.Select(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control'}),

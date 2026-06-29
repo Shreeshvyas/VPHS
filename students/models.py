@@ -50,6 +50,8 @@ class Student(SoftDeleteModel):
     date_of_birth = models.DateField()
     gender = models.CharField(max_length=2, choices=GENDER_CHOICES)
     aadhaar_number = models.CharField(max_length=20, blank=True, null=True)
+    scholar_number = models.CharField(max_length=50, blank=True, null=True, unique=True)
+    samagra_id = models.CharField(max_length=20, blank=True, null=True)
     admission_date = models.DateField()
     
     blood_group = models.CharField(max_length=5, choices=BLOOD_GROUP_CHOICES, blank=True, null=True)

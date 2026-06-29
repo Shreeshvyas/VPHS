@@ -66,6 +66,21 @@ def seed():
         principal_user.save()
         print("-> Created Principal account: principal / principal123")
 
+    receptionist_user, created = User.objects.get_or_create(
+        username="receptionist",
+        defaults={
+            "email": "receptionist@vyaspublicschool.edu",
+            "first_name": "Pooja",
+            "last_name": "Sharma",
+            "role": "RECEPTIONIST",
+            "is_staff": True
+        }
+    )
+    if created:
+        receptionist_user.set_password("receptionist123")
+        receptionist_user.save()
+        print("-> Created Receptionist account: receptionist / receptionist123")
+
     # 2. Create Active Academic Session
     session, created = AcademicSession.objects.get_or_create(
         name="2026-2027",
@@ -184,6 +199,9 @@ def seed():
             state="Delhi",
             date_of_birth=datetime.date(2015, 1, 1) + datetime.timedelta(days=(i * 15) % 1500),
             gender='M' if i % 2 == 0 else 'F',
+            aadhaar_number=f"{123456789000 + i}",
+            scholar_number=f"SCH-2026-{1000 + i}",
+            samagra_id=f"{987654320 + i}",
             admission_date=datetime.date(2026, 4, 1),
             category='GEN' if i % 3 == 0 else 'OBC'
         )
