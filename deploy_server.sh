@@ -5,7 +5,7 @@ set -e
 
 # Automatically detect the directory where this script is located
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SERVICE_NAME="vphs-teachers-portal"  # Default systemd service name
+SERVICE_NAME="vps-portal"  # Default systemd service name
 
 echo "======================================================"
 echo " Starting VPHS Server Deployment "
