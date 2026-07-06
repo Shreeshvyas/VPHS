@@ -87,6 +87,29 @@
                     {{ student_form.samagra_id }}
                     {{ student_form.samagra_id.errors }}
                 </div>
+                <div class="form-group">
+                    <label for="{{ student_form.apar_id.id_for_label }}">APAR ID</label>
+                    {{ student_form.apar_id }}
+                    {{ student_form.apar_id.errors }}
+                </div>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="{{ student_form.religion.id_for_label }}">Religion</label>
+                    {{ student_form.religion }}
+                    {{ student_form.religion.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ student_form.sub_category.id_for_label }}">Sub Category</label>
+                    {{ student_form.sub_category }}
+                    {{ student_form.sub_category.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ student_form.nationality.id_for_label }}">Nationality</label>
+                    {{ student_form.nationality }}
+                    {{ student_form.nationality.errors }}
+                </div>
             </div>
             
             <div class="form-grid" style="margin-bottom: 20px;">
@@ -99,6 +122,19 @@
                     <label for="{{ student_form.photo.id_for_label }}">Upload Photo</label>
                     {{ student_form.photo }}
                     {{ student_form.photo.errors }}
+                </div>
+            </div>
+            
+            <div class="form-grid" id="high-school-fields" style="margin-bottom: 20px; display: none;">
+                <div class="form-group" id="group-board-enrollment">
+                    <label for="{{ student_form.board_enrollment_number.id_for_label }}">Board Enrollment Number</label>
+                    {{ student_form.board_enrollment_number }}
+                    {{ student_form.board_enrollment_number.errors }}
+                </div>
+                <div class="form-group" id="group-stream">
+                    <label for="{{ student_form.stream.id_for_label }}">Stream Selection</label>
+                    {{ student_form.stream }}
+                    {{ student_form.stream.errors }}
                 </div>
             </div>
             
@@ -173,6 +209,36 @@
                 {{ student_form.previous_school_details }}
                 {{ student_form.previous_school_details.errors }}
             </div>
+            
+            <div class="panel-header" style="margin-top: 32px;">
+                <h2>4. Bank Account Details</h2>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="{{ student_form.bank_holder_name.id_for_label }}">Account Holder Name</label>
+                    {{ student_form.bank_holder_name }}
+                    {{ student_form.bank_holder_name.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ student_form.bank_account_number.id_for_label }}">Account Number</label>
+                    {{ student_form.bank_account_number }}
+                    {{ student_form.bank_account_number.errors }}
+                </div>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="{{ student_form.bank_ifsc.id_for_label }}">IFSC Code</label>
+                    {{ student_form.bank_ifsc }}
+                    {{ student_form.bank_ifsc.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ student_form.bank_branch.id_for_label }}">Branch Name</label>
+                    {{ student_form.bank_branch }}
+                    {{ student_form.bank_branch.errors }}
+                </div>
+            </div>
         </div>
         
         <!-- Sidebar block: Enrollment fields -->
@@ -211,4 +277,64 @@
         </div>
     </div>
 </form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const classSelect = document.getElementById("id_class_section");
+        const boardEnrollmentGroup = document.getElementById("group-board-enrollment");
+        const streamGroup = document.getElementById("group-stream");
+        const highSchoolRow = document.getElementById("high-school-fields");
+        
+        function checkClass(className) {
+            if (!className) {
+                boardEnrollmentGroup.style.display = "none";
+                streamGroup.style.display = "none";
+                highSchoolRow.style.display = "none";
+                return;
+            }
+            
+            // Matches classes containing 9, 10, 11, or 12 as separate tokens/words
+            const matchesEnrollment = /\b(9|10|11|12)\b/.test(className);
+            const matchesStream = /\b(11|12)\b/.test(className);
+            
+            let showRow = false;
+            
+            if (matchesEnrollment) {
+                boardEnrollmentGroup.style.display = "block";
+                showRow = true;
+            } else {
+                boardEnrollmentGroup.style.display = "none";
+                const boardInput = document.getElementById("id_board_enrollment_number");
+                if (boardInput) boardInput.value = "";
+            }
+            
+            if (matchesStream) {
+                streamGroup.style.display = "block";
+                showRow = true;
+            } else {
+                streamGroup.style.display = "none";
+                const streamInput = document.getElementById("id_stream");
+                if (streamInput) streamInput.value = "";
+            }
+            
+            if (showRow) {
+                highSchoolRow.style.display = "grid";
+            } else {
+                highSchoolRow.style.display = "none";
+            }
+        }
+        
+        // Setup initial display state and change handler
+        if (classSelect) {
+            function updateFieldsFromSelect() {
+                const selectedText = classSelect.options[classSelect.selectedIndex] ? classSelect.options[classSelect.selectedIndex].text : "";
+                checkClass(selectedText);
+            }
+            classSelect.addEventListener("change", updateFieldsFromSelect);
+            updateFieldsFromSelect();
+        }
+    });
+</script>
 {% endblock %}

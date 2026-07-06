@@ -11,7 +11,10 @@ class StudentForm(forms.ModelForm):
             'guardian_relation', 'guardian_mobile', 'guardian_email',
             'address', 'city', 'state', 'date_of_birth', 'gender',
             'aadhaar_number', 'scholar_number', 'samagra_id', 'admission_date', 'blood_group',
-            'category', 'photo', 'previous_school_details', 'status'
+            'category', 'apar_id', 'religion', 'sub_category', 'nationality',
+            'board_enrollment_number', 'stream',
+            'bank_account_number', 'bank_ifsc', 'bank_holder_name', 'bank_branch',
+            'photo', 'previous_school_details', 'status'
         ]
         widgets = {
             'admission_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. ADM-2026-0001'}),
@@ -34,6 +37,16 @@ class StudentForm(forms.ModelForm):
             'admission_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'blood_group': forms.Select(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control'}),
+            'apar_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'APAR ID'}),
+            'religion': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Religion'}),
+            'sub_category': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Sub Category'}),
+            'nationality': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nationality'}),
+            'board_enrollment_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Board Enrollment Number'}),
+            'stream': forms.Select(attrs={'class': 'form-control'}),
+            'bank_account_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Account Number'}),
+            'bank_ifsc': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'IFSC Code'}),
+            'bank_holder_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Account Holder Name'}),
+            'bank_branch': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Branch Name'}),
             'photo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'previous_school_details': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
             'status': forms.Select(attrs={'class': 'form-control'}),

@@ -88,6 +88,34 @@
                             <td>{{ student.samagra_id|default:"-" }}</td>
                         </tr>
                         <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">APAR ID:</td>
+                            <td>{{ student.apar_id|default:"-" }}</td>
+                        </tr>
+                        {% if student.board_enrollment_number %}
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Board Enrollment No:</td>
+                            <td style="font-family: monospace;">{{ student.board_enrollment_number }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if student.stream %}
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Stream:</td>
+                            <td>{{ student.get_stream_display }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Religion:</td>
+                            <td>{{ student.religion|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Sub Category:</td>
+                            <td>{{ student.sub_category|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Nationality:</td>
+                            <td>{{ student.nationality|default:"-" }}</td>
+                        </tr>
+                        <tr>
                             <td style="font-weight: 600; color: var(--text-secondary);">Admission Date:</td>
                             <td>{{ student.admission_date }}</td>
                         </tr>
@@ -122,6 +150,30 @@
                         <tr>
                             <td style="font-weight: 600; color: var(--text-secondary);">Previous School:</td>
                             <td>{{ student.previous_school_details|default:"None" }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-top: 24px; margin-bottom: 16px; color: var(--text-primary);">Bank Account Details</h3>
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <tbody>
+                        <tr>
+                            <td width="150" style="font-weight: 600; color: var(--text-secondary);">Account Holder:</td>
+                            <td>{{ student.bank_holder_name|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Account Number:</td>
+                            <td>{{ student.bank_account_number|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">IFSC Code:</td>
+                            <td style="font-family: monospace;">{{ student.bank_ifsc|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-secondary);">Branch Name:</td>
+                            <td>{{ student.bank_branch|default:"-" }}</td>
                         </tr>
                     </tbody>
                 </table>

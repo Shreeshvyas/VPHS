@@ -31,6 +31,13 @@ class Student(SoftDeleteModel):
         ('GRADUATED', 'Graduated'),
     ]
 
+    STREAM_CHOICES = [
+        ('SCIENCE', 'Science'),
+        ('COMMERCE', 'Commerce'),
+        ('BIOLOGY', 'Biology'),
+        ('AGRICULTURE', 'Agriculture'),
+    ]
+
     admission_number = models.CharField(max_length=50, unique=True, db_index=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
@@ -56,6 +63,20 @@ class Student(SoftDeleteModel):
     
     blood_group = models.CharField(max_length=5, choices=BLOOD_GROUP_CHOICES, blank=True, null=True)
     category = models.CharField(max_length=5, choices=CATEGORY_CHOICES)
+    
+    # Custom fields
+    apar_id = models.CharField(max_length=50, blank=True, null=True, verbose_name="APAR ID")
+    religion = models.CharField(max_length=100, blank=True, null=True)
+    sub_category = models.CharField(max_length=100, blank=True, null=True)
+    nationality = models.CharField(max_length=100, blank=True, null=True, default="Indian")
+    board_enrollment_number = models.CharField(max_length=50, blank=True, null=True, verbose_name="Board Enrollment Number")
+    stream = models.CharField(max_length=20, choices=STREAM_CHOICES, blank=True, null=True)
+    
+    # Bank Details
+    bank_account_number = models.CharField(max_length=50, blank=True, null=True)
+    bank_ifsc = models.CharField(max_length=20, blank=True, null=True, verbose_name="IFSC Code")
+    bank_holder_name = models.CharField(max_length=200, blank=True, null=True)
+    bank_branch = models.CharField(max_length=150, blank=True, null=True)
     photo = models.ImageField(upload_to='students/', blank=True, null=True)
     previous_school_details = models.TextField(blank=True, null=True)
     
